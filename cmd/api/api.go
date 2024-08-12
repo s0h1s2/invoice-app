@@ -1,7 +1,13 @@
 package api
 
 import (
+	"fmt"
+	"log"
+
+	"github.com/caarlos0/env/v10"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+	"github.com/s0h1s2/invoice-app/internal/config"
 	"github.com/s0h1s2/invoice-app/internal/db"
 	"github.com/s0h1s2/invoice-app/internal/handlers"
 	"github.com/s0h1s2/invoice-app/internal/services"
@@ -18,12 +24,22 @@ func NewEngine() *engine {
 	}
 }
 func (e *engine) Start() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Unable to load environment variables becuase of %s", err.Error())
+	}
+	if err = env.Parse(&config.Config); err != nil {
+		log.Fatalf("Unable to load env to config becuase of %s", err.Error())
+	}
 	api := e.engine.Group("/api/v1")
-	mysqlStore := db.NewMysqlStore("mydb_bowmeallog:ec10d2384b9154cdf893be3216542975dd632d28@tcp(wk2.h.filess.io:3307)/mydb_bowmeallog")
+
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", config.Config.Db.User, config.Config.Db.Password, config.Config.Db.Host, config.Config.Db.Port, config.Config.Db.Name)
+
+	mysqlStore := db.NewMysqlStore(dsn)
 
 	mysqlStore.Init()
-	userService := services.NewUserService(mysqlStore)
 
+	userService := services.NewUserService(mysqlStore)
 	userHandler := handlers.NewUserHandler(userService)
 	userHandler.RegisterAuthRoutes(api)
 
