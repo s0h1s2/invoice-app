@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/s0h1s2/invoice-app/internal/models"
+	"github.com/s0h1s2/invoice-app/internal/repositories"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -33,4 +34,20 @@ func (s *MysqlStore) FindUserByUsername(username string) (*models.User, error) {
 		return nil, err
 	}
 	return &user, nil
+}
+func (s *MysqlStore) CreateUser(username, password string) (*models.User, error) {
+	user, _ := s.FindUserByUsername(username)
+	if user != nil {
+		return nil, repositories.UsernameAlreadyTakeErr
+	}
+	newUser := models.User{
+		Username: username,
+		Password: password,
+	}
+	err := s.conn.Model(&models.User{}).Create(&newUser).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &newUser, nil
 }
