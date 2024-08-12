@@ -26,9 +26,13 @@ func (u *userHandler) login(ctx *gin.Context) {
 		ctx.JSON(400, err.Error())
 		return
 	}
-	// user, err := u.userService.FindUserByUsername(context.Background(), auth.Username)
+	token, err := u.userService.LoginUser(auth)
+	if err != nil {
+		ctx.JSON(401, gin.H{"error": "Wrong credentials"})
+		return
+	}
 
-	ctx.JSON(200, gin.H{"Hello": 1})
+	ctx.JSON(200, gin.H{"accessToken": token})
 }
 func (u *userHandler) refreshToken(ctx *gin.Context) {
 	ctx.JSON(200, gin.H{"Hello": 2})
