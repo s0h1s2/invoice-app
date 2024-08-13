@@ -23,7 +23,7 @@ func (c *customerHandler) RegisterCustomerRoutes(route gin.IRouter) {
 	route.GET("/customers/:id", c.getCustomer)
 	route.POST("/customers", c.createCustomer)
 	route.PUT("/customers/:id", c.updateCustomer)
-	route.DELETE("/customers/:id", c.createCustomer)
+	route.DELETE("/customers/:id", c.deleteCustomer)
 }
 func (c *customerHandler) getCustomer(ctx *gin.Context) {
 	var payload dto.GetCustomerRequest
@@ -70,9 +70,27 @@ func (c *customerHandler) updateCustomer(ctx *gin.Context) {
 	}
 	result, err := c.customerService.UpdateCustomer(customerID, payload)
 	if err != nil {
-		slog.Error("Unable to update customer due %v", err.Error())
+		slog.Error("Unable to update customer due %s", err.Error())
 		ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Errors: "Unable to update customer"})
 		return
 	}
 	ctx.JSON(http.StatusOK, pkg.SuccessResponse{Data: result})
+}
+func (c *customerHandler) deleteCustomer(ctx *gin.Context) {
+	var customerUri dto.GetCustomerRequest
+	if err := ctx.ShouldBindUri(&customerUri); err != nil {
+		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: err.Error()})
+		return
+	}
+	customerID := customerUri.ID
+	_, err := c.customerService.FindCustomerById(customerID)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, pkg.ErrorResponse{Errors: "Customer not found."})
+		return
+	}
+	err = c.customerService.DeleteCustomer(customerID)
+	if err != nil {
+		slog.Error("Unable to delete customer %s", err.Error())
+	}
+	ctx.JSON(http.StatusOK, pkg.SuccessResponse{})
 }

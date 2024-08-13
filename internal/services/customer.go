@@ -46,9 +46,7 @@ func (c *CustomerService) UpdateCustomer(customerId uint, customer dto.UpdateCus
 		return nil, err
 	}
 	return result, nil
-	// customerData, err = c.store.UpdateCustomer(customerId)
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// return customerData, nil
+}
+func (c *CustomerService) DeleteCustomer(customerId uint) error {
+	return c.store.DeleteCusotmer(customerId)
 }
