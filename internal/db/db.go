@@ -53,36 +53,28 @@ func (s *MysqlStore) CreateUser(username, password string) (*models.User, error)
 
 	return &newUser, nil
 }
-func (s *MysqlStore) CreateCustomer(customer models.Customer) (*models.Customer, error) {
-	err := s.conn.Create(&customer).Error
+func (s *MysqlStore) CreateCustomer(customer *models.Customer) (*models.Customer, error) {
+	err := s.conn.Create(customer).Error
 	if err != nil {
 		return nil, repositories.ErrCustomerCreate
 	}
-	return &customer, nil
+	return customer, nil
 }
 
-func (s *MysqlStore) UpdateCustomer(customerId uint, customer models.Customer) (*models.Customer, error) {
-	newCustomer := models.Customer{
-		FirstName: customer.FirstName,
-		LastName:  customer.LastName,
-		Address:   customer.Address,
-		Balance:   customer.Balance,
-	}
-	err := s.conn.Updates(&newCustomer).Where("id=?", customerId).Error
+func (s *MysqlStore) UpdateCustomer(customerId uint, customer *models.Customer) (*models.Customer, error) {
+	err := s.conn.Where("id=?", customerId).Updates(customer).Error
 	if err != nil {
 		return nil, repositories.ErrCustomerUpdate
 	}
-	return &newCustomer, nil
+	return customer, nil
 }
 func (s *MysqlStore) GetCusotmer(id uint) (*models.Customer, error) {
-	println("Customer Id", id)
 	customer := &models.Customer{}
 	err := s.conn.First(customer, id).Error
 	if err != nil {
 		return nil, err
 	}
 	return customer, nil
-
 }
 func (s *MysqlStore) DeleteCusotmer(id uint) error {
 	return s.conn.Model(&models.Customer{}).Delete("id=?", id).Error

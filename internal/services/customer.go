@@ -23,7 +23,7 @@ func (c *CustomerService) CreateCustomer(customer dto.CreateCustomerRequest) (*m
 		Phone:     customer.Phone,
 		Balance:   customer.Balance,
 	}
-	result, err := c.store.CreateCustomer(newCustomer)
+	result, err := c.store.CreateCustomer(&newCustomer)
 	if err != nil {
 		return nil, err
 	}
@@ -31,4 +31,24 @@ func (c *CustomerService) CreateCustomer(customer dto.CreateCustomerRequest) (*m
 }
 func (c *CustomerService) FindCustomerById(customerId uint) (*models.Customer, error) {
 	return c.store.GetCusotmer(customerId)
+}
+func (c *CustomerService) UpdateCustomer(customerId uint, customer dto.UpdateCustomerRequest) (*models.Customer, error) {
+
+	newCustomer := models.Customer{
+		FirstName: customer.FirstName,
+		LastName:  customer.LastName,
+		Phone:     customer.Phone,
+		Address:   customer.Address,
+		Balance:   customer.Balance,
+	}
+	result, err := c.store.UpdateCustomer(customerId, &newCustomer)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+	// customerData, err = c.store.UpdateCustomer(customerId)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// return customerData, nil
 }

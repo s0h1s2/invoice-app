@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log/slog"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -21,8 +22,8 @@ func NewCustomerHandler(service *services.CustomerService) *customerHandler {
 func (c *customerHandler) RegisterCustomerRoutes(route gin.IRouter) {
 	route.GET("/customers/:id", c.getCustomer)
 	route.POST("/customers", c.createCustomer)
+	route.PUT("/customers/:id", c.updateCustomer)
 	route.DELETE("/customers/:id", c.createCustomer)
-	route.PUT("/customers/:id", c.createCustomer)
 }
 func (c *customerHandler) getCustomer(ctx *gin.Context) {
 	var payload dto.GetCustomerRequest
@@ -49,4 +50,29 @@ func (c *customerHandler) createCustomer(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(http.StatusCreated, pkg.SuccessResponse{Data: result})
+}
+func (c *customerHandler) updateCustomer(ctx *gin.Context) {
+	var customerUri dto.GetCustomerRequest
+	if err := ctx.ShouldBindUri(&customerUri); err != nil {
+		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: err.Error()})
+		return
+	}
+	var payload dto.UpdateCustomerRequest
+	if err := ctx.ShouldBindBodyWithJSON(&payload); err != nil {
+		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: err.Error()})
+		return
+	}
+	customerID := customerUri.ID
+	_, err := c.customerService.FindCustomerById(customerID)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, pkg.ErrorResponse{Errors: "Customer not found."})
+		return
+	}
+	result, err := c.customerService.UpdateCustomer(customerID, payload)
+	if err != nil {
+		slog.Error("Unable to update customer due %v", err.Error())
+		ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Errors: "Unable to update customer"})
+		return
+	}
+	ctx.JSON(http.StatusOK, pkg.SuccessResponse{Data: result})
 }
