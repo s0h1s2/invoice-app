@@ -11,7 +11,7 @@ import (
 )
 
 type MysqlStore struct {
-	conn *gorm.DB
+	db *gorm.DB
 }
 
 func NewMysqlStore(dsn string) *MysqlStore {
@@ -20,21 +20,21 @@ func NewMysqlStore(dsn string) *MysqlStore {
 		log.Fatalf("Error while connecting to DB:%s", err.Error())
 	}
 	return &MysqlStore{
-		conn: conn,
+		db: conn,
 	}
 
 }
 func (s *MysqlStore) Init() {
-	s.conn.AutoMigrate(&models.User{})
-	s.conn.AutoMigrate(&models.Customer{})
-	s.conn.AutoMigrate(&models.Supplier{})
-	s.conn.AutoMigrate(&models.Product{})
-	s.conn.AutoMigrate(&models.ProductImage{})
+	s.db.AutoMigrate(&models.User{})
+	s.db.AutoMigrate(&models.Customer{})
+	s.db.AutoMigrate(&models.Supplier{})
+	s.db.AutoMigrate(&models.Product{})
+	s.db.AutoMigrate(&models.ProductImage{})
 
 }
 func (s *MysqlStore) FindUserByUsername(username string) (*models.User, error) {
 	var user models.User
-	err := s.conn.First(&user, "username=?", username).Error
+	err := s.db.First(&user, "username=?", username).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, err
 	}
@@ -49,7 +49,7 @@ func (s *MysqlStore) CreateUser(username, password string) (*models.User, error)
 		Username: username,
 		Password: password,
 	}
-	err := s.conn.Model(&models.User{}).Create(&newUser).Error
+	err := s.db.Model(&models.User{}).Create(&newUser).Error
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func (s *MysqlStore) CreateUser(username, password string) (*models.User, error)
 	return &newUser, nil
 }
 func (s *MysqlStore) CreateCustomer(customer *models.Customer) (*models.Customer, error) {
-	err := s.conn.Create(customer).Error
+	err := s.db.Create(customer).Error
 	if err != nil {
 		return nil, repositories.ErrCustomerCreate
 	}
@@ -65,7 +65,7 @@ func (s *MysqlStore) CreateCustomer(customer *models.Customer) (*models.Customer
 }
 
 func (s *MysqlStore) UpdateCustomer(customerId uint, customer *models.Customer) (*models.Customer, error) {
-	err := s.conn.Where("id=?", customerId).Updates(customer).Error
+	err := s.db.Where("id=?", customerId).Updates(customer).Error
 	if err != nil {
 		return nil, repositories.ErrCustomerUpdate
 	}
@@ -73,17 +73,17 @@ func (s *MysqlStore) UpdateCustomer(customerId uint, customer *models.Customer) 
 }
 func (s *MysqlStore) GetCusotmer(id uint) (*models.Customer, error) {
 	customer := &models.Customer{}
-	err := s.conn.First(customer, id).Error
+	err := s.db.First(customer, id).Error
 	if err != nil {
 		return nil, err
 	}
 	return customer, nil
 }
 func (s *MysqlStore) DeleteCusotmer(id uint) error {
-	return s.conn.Model(&models.Customer{}).Delete("id=?", id).Error
+	return s.db.Model(&models.Customer{}).Delete("id=?", id).Error
 }
 func (s *MysqlStore) CreateProduct(product *models.Product) (*models.Product, error) {
-	err := s.conn.Create(product).Error
+	err := s.db.Create(product).Error
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +99,7 @@ func (s *MysqlStore) DeleteProduct(productId uint) error {
 	return nil
 }
 func (s *MysqlStore) CreateSupplier(supplier *models.Supplier) (*models.Supplier, error) {
-	err := s.conn.Create(supplier).Error
+	err := s.db.Create(supplier).Error
 	if err != nil {
 		return nil, err
 	}
@@ -107,20 +107,21 @@ func (s *MysqlStore) CreateSupplier(supplier *models.Supplier) (*models.Supplier
 }
 func (s *MysqlStore) GetSupplier(supplierId uint) (*models.Supplier, error) {
 	supplier := &models.Supplier{}
-	err := s.conn.First(supplier, supplierId).Error
+	err := s.db.First(supplier, supplierId).Error
 	if err != nil {
 		return nil, err
 	}
 	return supplier, nil
 }
 func (s *MysqlStore) UpdateSupplier(supplierId uint, supplier *models.Supplier) (*models.Supplier, error) {
-	err := s.conn.Where("id=?", supplierId).Updates(supplier).Error
+	err := s.db.Where("id=?", supplierId).Updates(supplier).Error
 	if err != nil {
 		return nil, err
 	}
 	return supplier, nil
 }
 
-func (s *MysqlStore) DeleteSupplier(id uint) error {
-	return nil
+func (s *MysqlStore) DeleteSupplier(supplierId uint) error {
+	err := s.db.Model(&models.Supplier{}).Delete("id=?", supplierId).Error
+	return err
 }

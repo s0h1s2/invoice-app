@@ -92,4 +92,15 @@ func (sh *supplierHandler) updateSupplier(ctx *gin.Context) {
 
 }
 func (sh *supplierHandler) deleteSupplier(ctx *gin.Context) {
+	var supplierUri dto.GetSupplierRequest
+	if err := ctx.BindUri(&supplierUri); err != nil {
+		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: err.Error()})
+		return
+	}
+	err := sh.store.DeleteSupplier(supplierUri.ID)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, pkg.SuccessResponse{Data: "Supplier deleted"})
 }
