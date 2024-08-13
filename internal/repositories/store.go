@@ -20,6 +20,20 @@ type Store interface {
 	/// Customer
 	CreateCustomer(customer *models.Customer) (*models.Customer, error)
 	UpdateCustomer(customerId uint, customer *models.Customer) (*models.Customer, error)
-	GetCusotmer(id uint) (*models.Customer, error)
-	DeleteCusotmer(id uint) error
+	GetCusotmer(customerId uint) (*models.Customer, error)
+	DeleteCusotmer(customerId uint) error
+	/// Product
+	CreateProduct(product *models.Product) (*models.Product, error)
+	UpdateProduct(productId uint, product *models.Product) (*models.Product, error)
+	GetProduct(productId uint) (*models.Product, error)
+	DeleteProduct(productId uint) error
+
+	/// Supplier
+	CreateSupplier(supplier *models.Supplier) (*models.Supplier, error)
+	GetSupplier(supplierId uint) (*models.Supplier, error)
+	UpdateSupplier(supplierId uint, supplier *models.Supplier) (*models.Supplier, error)
+	DeleteSupplier(id uint) error
+
+	/// Invoice
+
 }

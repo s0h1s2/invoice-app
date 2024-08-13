@@ -43,8 +43,12 @@ func (e *engine) Start() {
 	customerService := services.NewCustomerService(mysqlStore)
 	userHandler := handlers.NewUserHandler(userService)
 	userHandler.RegisterAuthRoutes(api)
+
 	customerHandler := handlers.NewCustomerHandler(customerService)
 	customerHandler.RegisterCustomerRoutes(api)
+
+	productHandler := handlers.NewProductHandler(mysqlStore)
+	productHandler.RegisterProductRoutes(api)
 
 	e.engine.Run(":8080")
 }

@@ -25,8 +25,11 @@ func NewMysqlStore(dsn string) *MysqlStore {
 
 }
 func (s *MysqlStore) Init() {
-	s.conn.AutoMigrate(models.User{})
-	s.conn.AutoMigrate(models.Customer{})
+	s.conn.AutoMigrate(&models.User{})
+	s.conn.AutoMigrate(&models.Customer{})
+	s.conn.AutoMigrate(&models.Supplier{})
+	s.conn.AutoMigrate(&models.Product{})
+	s.conn.AutoMigrate(&models.ProductImage{})
 
 }
 func (s *MysqlStore) FindUserByUsername(username string) (*models.User, error) {
@@ -78,4 +81,38 @@ func (s *MysqlStore) GetCusotmer(id uint) (*models.Customer, error) {
 }
 func (s *MysqlStore) DeleteCusotmer(id uint) error {
 	return s.conn.Model(&models.Customer{}).Delete("id=?", id).Error
+}
+func (s *MysqlStore) CreateProduct(product *models.Product) (*models.Product, error) {
+	err := s.conn.Create(product).Error
+	if err != nil {
+		return nil, err
+	}
+	return product, nil
+}
+func (s *MysqlStore) UpdateProduct(productId uint, product *models.Product) (*models.Product, error) {
+	return nil, nil
+}
+func (s *MysqlStore) GetProduct(productId uint) (*models.Product, error) {
+	return nil, nil
+}
+func (s *MysqlStore) DeleteProduct(productId uint) error {
+	return nil
+}
+func (s *MysqlStore) CreateSupplier(supplier *models.Supplier) (*models.Supplier, error) {
+	return nil, nil
+}
+func (s *MysqlStore) GetSupplier(supplierId uint) (*models.Supplier, error) {
+	supplier := &models.Supplier{}
+	err := s.conn.First(supplier, supplierId).Error
+	if err != nil {
+		return nil, err
+	}
+	return supplier, nil
+}
+func (s *MysqlStore) UpdateSupplier(supplierId uint, supplier *models.Supplier) (*models.Supplier, error) {
+	return nil, nil
+}
+
+func (s *MysqlStore) DeleteSupplier(id uint) error {
+	return nil
 }
