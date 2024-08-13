@@ -8,8 +8,8 @@ type Product struct {
 	BarCode    []byte `gorm:"size:13"`
 	Qunatity   int
 	Price      float32
-	SupplierID uint
 	Supplier   Supplier
+	SupplierID uint
 	Images     []ProductImage
 }
 type ProductImage struct {

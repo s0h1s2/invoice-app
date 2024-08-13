@@ -99,7 +99,11 @@ func (s *MysqlStore) DeleteProduct(productId uint) error {
 	return nil
 }
 func (s *MysqlStore) CreateSupplier(supplier *models.Supplier) (*models.Supplier, error) {
-	return nil, nil
+	err := s.conn.Create(supplier).Error
+	if err != nil {
+		return nil, err
+	}
+	return supplier, nil
 }
 func (s *MysqlStore) GetSupplier(supplierId uint) (*models.Supplier, error) {
 	supplier := &models.Supplier{}
