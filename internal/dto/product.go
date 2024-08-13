@@ -1,5 +1,8 @@
 package dto
 
+type GetProductRequest struct {
+	ID uint `uri:"id"`
+}
 type CreateProductRequest struct {
 	Name       string  `json:"name" binding:"required"`
 	Quantity   int     `json:"quantity" binding:"required"`

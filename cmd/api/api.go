@@ -19,6 +19,7 @@ type engine struct {
 
 func NewEngine() *engine {
 	eng := gin.Default()
+	eng.Static("/uploads", "../../assets/uploads")
 	return &engine{
 		engine: eng,
 	}
@@ -52,6 +53,9 @@ func (e *engine) Start() {
 
 	supplierHandler := handlers.NewSupplierHandler(mysqlStore)
 	supplierHandler.RegisterSupplierRoutes(api)
+
+	productImageUploadHandler := (handlers.NewProductImageHandler(mysqlStore))
+	productImageUploadHandler.RegisterProductImageRoutes(api)
 
 	e.engine.Run(":8080")
 }
