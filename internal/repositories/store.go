@@ -7,9 +7,9 @@ import (
 )
 
 var (
-	UsernameAlreadyTakeErr = errors.New("Username already taken")
-	CustomerCreateErr      = errors.New("Can't create customer")
-	CustomerUpdateErr      = errors.New("Can't update customer")
+	ErrUsernameAlreadyTake = errors.New("username already taken")
+	ErrCustomerCreate      = errors.New("can't create customer")
+	ErrCustomerUpdate      = errors.New("can't update customer")
 )
 
 type Store interface {
@@ -18,8 +18,8 @@ type Store interface {
 	CreateUser(username, password string) (*models.User, error)
 
 	/// Customer
-	CreateCustomer(firstName, lastName, address, phone string, balance float32) (*models.Customer, error)
-	UpdateCustomer(customerId uint, firstName, lastName, address, phone string, balance float32) (*models.Customer, error)
+	CreateCustomer(customer models.Customer) (*models.Customer, error)
+	UpdateCustomer(customerId uint, customer models.Customer) (*models.Customer, error)
 	GetCusotmer(id uint) (*models.Customer, error)
 	DeleteCusotmer(id uint) error
 }

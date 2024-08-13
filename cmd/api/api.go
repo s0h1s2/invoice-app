@@ -40,8 +40,11 @@ func (e *engine) Start() {
 	mysqlStore.Init()
 
 	userService := services.NewUserService(mysqlStore)
+	customerService := services.NewCustomerService(mysqlStore)
 	userHandler := handlers.NewUserHandler(userService)
 	userHandler.RegisterAuthRoutes(api)
+	customerHandler := handlers.NewCustomerHandler(customerService)
+	customerHandler.RegisterCustomerRoutes(api)
 
 	e.engine.Run(":8080")
 }

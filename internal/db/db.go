@@ -40,7 +40,7 @@ func (s *MysqlStore) FindUserByUsername(username string) (*models.User, error) {
 func (s *MysqlStore) CreateUser(username, password string) (*models.User, error) {
 	user, _ := s.FindUserByUsername(username)
 	if user != nil {
-		return nil, repositories.UsernameAlreadyTakeErr
+		return nil, repositories.ErrUsernameAlreadyTake
 	}
 	newUser := models.User{
 		Username: username,
@@ -53,38 +53,31 @@ func (s *MysqlStore) CreateUser(username, password string) (*models.User, error)
 
 	return &newUser, nil
 }
-func (s *MysqlStore) CreateCustomer(firstName, lastName, address, phone string, balance float32) (*models.Customer, error) {
-	customer := models.Customer{
-		FirstName: firstName,
-		LastName:  lastName,
-		Address:   address,
-		Phone:     phone,
-		Balance:   balance,
-	}
+func (s *MysqlStore) CreateCustomer(customer models.Customer) (*models.Customer, error) {
 	err := s.conn.Create(&customer).Error
 	if err != nil {
-		return nil, repositories.CustomerCreateErr
+		return nil, repositories.ErrCustomerCreate
 	}
 	return &customer, nil
 }
 
-func (s *MysqlStore) UpdateCustomer(customerId uint, firstName, lastName, address, phone string, balance float32) (*models.Customer, error) {
+func (s *MysqlStore) UpdateCustomer(customerId uint, customer models.Customer) (*models.Customer, error) {
 	newCustomer := models.Customer{
-		FirstName: firstName,
-		LastName:  lastName,
-		Balance:   balance,
-		Phone:     phone,
-		Address:   address,
+		FirstName: customer.FirstName,
+		LastName:  customer.LastName,
+		Address:   customer.Address,
+		Balance:   customer.Balance,
 	}
 	err := s.conn.Updates(&newCustomer).Where("id=?", customerId).Error
 	if err != nil {
-		return nil, repositories.CustomerUpdateErr
+		return nil, repositories.ErrCustomerUpdate
 	}
 	return &newCustomer, nil
 }
 func (s *MysqlStore) GetCusotmer(id uint) (*models.Customer, error) {
+	println("Customer Id", id)
 	customer := &models.Customer{}
-	err := s.conn.Model(customer).Where("id=?", id).Error
+	err := s.conn.First(customer, id).Error
 	if err != nil {
 		return nil, err
 	}
