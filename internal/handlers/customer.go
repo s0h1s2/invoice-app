@@ -70,7 +70,7 @@ func (c *customerHandler) updateCustomer(ctx *gin.Context) {
 	}
 	result, err := c.customerService.UpdateCustomer(customerID, payload)
 	if err != nil {
-		slog.Error("Unable to update customer due %s", err.Error())
+		slog.Error("Unable to update customer due %s", "err", err.Error())
 		ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Errors: "Unable to update customer"})
 		return
 	}
@@ -90,7 +90,7 @@ func (c *customerHandler) deleteCustomer(ctx *gin.Context) {
 	}
 	err = c.customerService.DeleteCustomer(customerID)
 	if err != nil {
-		slog.Error("Unable to delete customer %s", err.Error())
+		slog.Error("Unable to delete customer %s", "err", err.Error())
 	}
 	ctx.JSON(http.StatusOK, pkg.SuccessResponse{})
 }

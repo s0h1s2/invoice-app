@@ -52,7 +52,7 @@ func (sh *supplierHandler) createSupplier(ctx *gin.Context) {
 	}
 	result, err := sh.store.CreateSupplier(supplier)
 	if err != nil {
-		slog.Error("Unable to create supplier %s", err.Error())
+		slog.Error("Unable to create supplier %s", "err", err.Error())
 		ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Errors: "Unable to create supplier"})
 		return
 	}
@@ -84,7 +84,7 @@ func (sh *supplierHandler) updateSupplier(ctx *gin.Context) {
 	}
 	result, err := sh.store.UpdateSupplier(supplierId, supplier)
 	if err != nil {
-		slog.Error("Unable to update supplier %s", err.Error())
+		slog.Error("Unable to update supplier %s", "err", err.Error())
 		ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Errors: "Unable to update supplier"})
 		return
 	}

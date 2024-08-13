@@ -44,7 +44,7 @@ func (ph *productHandler) createProduct(ctx *gin.Context) {
 
 	result, err := ph.store.CreateProduct(&product)
 	if err != nil {
-		slog.Error("Unable to create product", err)
+		slog.Error("Unable to create product", "err", err.Error())
 		ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Errors: "Unable to create product"})
 		return
 	}
