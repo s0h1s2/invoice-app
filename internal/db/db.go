@@ -114,7 +114,11 @@ func (s *MysqlStore) GetSupplier(supplierId uint) (*models.Supplier, error) {
 	return supplier, nil
 }
 func (s *MysqlStore) UpdateSupplier(supplierId uint, supplier *models.Supplier) (*models.Supplier, error) {
-	return nil, nil
+	err := s.conn.Where("id=?", supplierId).Updates(supplier).Error
+	if err != nil {
+		return nil, err
+	}
+	return supplier, nil
 }
 
 func (s *MysqlStore) DeleteSupplier(id uint) error {

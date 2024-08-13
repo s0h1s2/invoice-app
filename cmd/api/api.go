@@ -50,5 +50,8 @@ func (e *engine) Start() {
 	productHandler := handlers.NewProductHandler(mysqlStore)
 	productHandler.RegisterProductRoutes(api)
 
+	supplierHandler := handlers.NewSupplierHandler(mysqlStore)
+	supplierHandler.RegisterSupplierRoutes(api)
+
 	e.engine.Run(":8080")
 }
