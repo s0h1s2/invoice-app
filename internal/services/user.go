@@ -24,7 +24,7 @@ func NewUserService(repo repositories.Store) *UserService {
 		repo: repo,
 	}
 }
-func (u *UserService) RegisterUser(createUserDto dto.CreateUserDto) error {
+func (u *UserService) RegisterUser(createUserDto dto.CreateUserRequest) error {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(createUserDto.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
@@ -51,8 +51,8 @@ func (u *UserService) LoginUser(authDto dto.AuthRequest) (*string, error) {
 			Issuer:    "issuer",
 		},
 	}
-	token := jwt.NewWithClaims(jwt.SigningMethodES256, userClaim)
-	tokenStr, err := token.SignedString(config.Config.Jwt.JwtSecretKey)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, userClaim)
+	tokenStr, err := token.SignedString([]byte(config.Config.Jwt.JwtSecretKey))
 	if err != nil {
 		return nil, err
 	}

@@ -33,7 +33,7 @@ func (e *engine) Start() {
 	}
 	api := e.engine.Group("/api/v1")
 
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", config.Config.Db.User, config.Config.Db.Password, config.Config.Db.Host, config.Config.Db.Port, config.Config.Db.Name)
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", config.Config.Db.User, config.Config.Db.Password, config.Config.Db.Host, config.Config.Db.Port, config.Config.Db.Name)
 
 	mysqlStore := db.NewMysqlStore(dsn)
 

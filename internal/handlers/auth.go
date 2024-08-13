@@ -1,12 +1,11 @@
 package handlers
 
 import (
-	"net/http"
-
 	"github.com/gin-gonic/gin"
 	"github.com/s0h1s2/invoice-app/internal/dto"
 	"github.com/s0h1s2/invoice-app/internal/services"
 	"github.com/s0h1s2/invoice-app/pkg"
+	"net/http"
 )
 
 type userHandler struct {
@@ -27,19 +26,19 @@ func (u *userHandler) RegisterAuthRoutes(route gin.IRouter) {
 func (u *userHandler) login(ctx *gin.Context) {
 	var auth dto.AuthRequest
 	if err := ctx.ShouldBindBodyWithJSON(&auth); err != nil {
-		ctx.JSON(http.StatusBadRequest, err.Error())
+		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: err.Error()})
 		return
 	}
 	token, err := u.userService.LoginUser(auth)
 	if err != nil {
-		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "Wrong credentials"})
+		ctx.JSON(http.StatusUnauthorized, pkg.ErrorResponse{Errors: err.Error()})
 		return
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"accessToken": token})
 }
 func (u *userHandler) createUser(ctx *gin.Context) {
-	var user dto.CreateUserDto
+	var user dto.CreateUserRequest
 	if err := ctx.ShouldBindJSON(&user); err != nil {
 		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: err.Error()})
 		return
