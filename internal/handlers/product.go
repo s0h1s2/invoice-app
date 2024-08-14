@@ -21,7 +21,24 @@ func NewProductHandler(store repositories.Store) *productHandler {
 	}
 }
 func (ph *productHandler) RegisterProductRoutes(gin gin.IRouter) {
+	gin.GET("/products/:id", ph.getProduct)
 	gin.POST("/products", ph.createProduct)
+}
+func (ph *productHandler) getProduct(ctx *gin.Context) {
+	var productUri dto.GetProductRequest
+	if err := ctx.BindUri(&productUri); err != nil {
+		ctx.JSON(http.StatusNotFound, pkg.ErrorResponse{Errors: err.Error()})
+		return
+	}
+
+	product, err := ph.store.GetProduct(productUri.ID)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, pkg.ErrorResponse{Errors: "Product not found."})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, pkg.SuccessResponse{Data: product})
+
 }
 func (ph *productHandler) createProduct(ctx *gin.Context) {
 	var payload dto.CreateProductRequest

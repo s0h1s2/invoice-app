@@ -3,6 +3,7 @@ package db
 import (
 	"errors"
 	"log"
+	"log/slog"
 
 	"github.com/s0h1s2/invoice-app/internal/models"
 	"github.com/s0h1s2/invoice-app/internal/repositories"
@@ -93,10 +94,19 @@ func (s *MysqlStore) CreateProductImage(image *models.ProductImage) error {
 	return s.db.Model(&models.ProductImage{ProductID: image.ProductID}).Create(image).Error
 }
 func (s *MysqlStore) UpdateProduct(productId uint, product *models.Product) (*models.Product, error) {
+
 	return nil, nil
 }
 func (s *MysqlStore) GetProduct(productId uint) (*models.Product, error) {
-	return nil, nil
+	product := &models.Product{}
+	err := s.db.Preload("Supplier").Preload("Images").Find(product, "id=?", productId).Error
+	if errors.Is(gorm.ErrRecordNotFound, err) {
+		return nil, repositories.ErrNotFound
+	} else if err != nil {
+		slog.Error("Error while reading product ", "err", err)
+		return nil, err
+	}
+	return product, nil
 }
 func (s *MysqlStore) DeleteProduct(productId uint) error {
 	return nil
