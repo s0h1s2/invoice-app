@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/s0h1s2/invoice-app/internal/dto"
+	"github.com/s0h1s2/invoice-app/internal/models"
 	"github.com/s0h1s2/invoice-app/internal/repositories"
 	"github.com/s0h1s2/invoice-app/pkg"
 )
@@ -32,12 +33,12 @@ func (pm *productImageHandler) uploadImage(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: err.Error()})
 		return
 	}
-	_, err := pm.store.GetProduct(productUri.ID)
+	productID := productUri.ID
+	_, err := pm.store.GetProduct(productID)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: "Product wasn't found."})
 		return
 	}
-
 	form, err := ctx.MultipartForm()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Errors: err.Error()})
@@ -52,5 +53,10 @@ func (pm *productImageHandler) uploadImage(ctx *gin.Context) {
 			ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Errors: "Unable to upload image."})
 			return
 		}
+		if err := pm.store.CreateProductImage(&models.ProductImage{ProductID: productID, Name: fileName}); err != nil {
+			ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Errors: "Unable to create product images"})
+			return
+		}
 	}
+	ctx.JSON(http.StatusCreated, pkg.SuccessResponse{Data: "Images uploaded successfully"})
 }

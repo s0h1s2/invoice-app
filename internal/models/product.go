@@ -15,5 +15,5 @@ type Product struct {
 type ProductImage struct {
 	gorm.Model
 	Name      string
-	ProductID int
+	ProductID uint
 }

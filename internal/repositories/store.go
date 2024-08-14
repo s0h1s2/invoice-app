@@ -16,7 +16,6 @@ type Store interface {
 	/// User
 	FindUserByUsername(username string) (*models.User, error)
 	CreateUser(username, password string) (*models.User, error)
-
 	/// Customer
 	CreateCustomer(customer *models.Customer) (*models.Customer, error)
 	UpdateCustomer(customerId uint, customer *models.Customer) (*models.Customer, error)
