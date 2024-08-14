@@ -27,7 +27,7 @@ func (u *userHandler) RegisterAuthRoutes(route gin.IRouter) {
 // 		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: err.Error()})
 // 		return
 // 	}
-// 	token, err := u.user.LoginUser(auth)
+
 // 	if err != nil {
 // 		ctx.JSON(http.StatusUnauthorized, pkg.ErrorResponse{Errors: err.Error()})
 // 		return

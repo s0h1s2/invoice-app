@@ -7,13 +7,18 @@ import (
 )
 
 type Invoice struct {
-	InvoiceID  string `gorm:"primary_key"`
+	ID         string `gorm:"primary_key"`
 	Date       time.Time
 	CustomerID int
 	Customer   Customer
 	Total      float32
+	Lines      []InvoiceLine
 }
 
 type InvoiceLine struct {
 	gorm.Model
+	Quantity  int
+	Price     float32
+	ProductID uint
+	InvoiceID uint
 }

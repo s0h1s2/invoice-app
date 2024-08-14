@@ -28,4 +28,6 @@ func (s *mysqlStore) Init() {
 	s.db.AutoMigrate(&models.Supplier{})
 	s.db.AutoMigrate(&models.Product{})
 	s.db.AutoMigrate(&models.ProductImage{})
+	s.db.AutoMigrate(&models.Invoice{})
+	s.db.AutoMigrate(&models.InvoiceLine{})
 }
