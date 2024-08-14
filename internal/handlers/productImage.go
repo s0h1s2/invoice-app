@@ -14,12 +14,14 @@ import (
 )
 
 type productImageHandler struct {
-	store repositories.Store
+	image   repositories.ProductImageRepository
+	product repositories.ProductRepository
 }
 
-func NewProductImageHandler(store repositories.Store) *productImageHandler {
+func NewProductImageHandler(image repositories.ProductImageRepository, product repositories.ProductRepository) *productImageHandler {
 	return &productImageHandler{
-		store: store,
+		image:   image,
+		product: product,
 	}
 }
 func (pm *productImageHandler) RegisterProductImageRoutes(route gin.IRouter) {
@@ -34,7 +36,7 @@ func (pm *productImageHandler) uploadImage(ctx *gin.Context) {
 		return
 	}
 	productID := productUri.ID
-	_, err := pm.store.GetProduct(productID)
+	_, err := pm.product.GetProduct(productID)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: "Product wasn't found."})
 		return
@@ -53,7 +55,7 @@ func (pm *productImageHandler) uploadImage(ctx *gin.Context) {
 			ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Errors: "Unable to upload image."})
 			return
 		}
-		if err := pm.store.CreateProductImage(&models.ProductImage{ProductID: productID, Name: fileName}); err != nil {
+		if err := pm.image.CreateProductImage(&models.ProductImage{ProductID: productID, Name: fileName}); err != nil {
 			ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Errors: "Unable to create product images"})
 			return
 		}

@@ -8,9 +8,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/s0h1s2/invoice-app/internal/config"
-	"github.com/s0h1s2/invoice-app/internal/db"
+	mysqlstore "github.com/s0h1s2/invoice-app/internal/db/mysqlStore"
 	"github.com/s0h1s2/invoice-app/internal/handlers"
-	"github.com/s0h1s2/invoice-app/internal/services"
 )
 
 type engine struct {
@@ -36,25 +35,27 @@ func (e *engine) Start() {
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", config.Config.Db.User, config.Config.Db.Password, config.Config.Db.Host, config.Config.Db.Port, config.Config.Db.Name)
 
-	mysqlStore := db.NewMysqlStore(dsn)
+	db := mysqlstore.NewMysqlStore(dsn)
 
-	mysqlStore.Init()
+	db.Init()
+	userStore := mysqlstore.NewMysqlUserStore(db)
+	productStore := mysqlstore.NewMysqlProductStore(db)
+	customerStore := mysqlstore.NewMysqlCustomerStore(db)
+	supplierStore := mysqlstore.NewMysqlSupplierStore(db)
+	productImageStore := mysqlstore.NewProductImageStore(db)
 
-	userService := services.NewUserService(mysqlStore)
-	customerService := services.NewCustomerService(mysqlStore)
-	userHandler := handlers.NewUserHandler(userService)
+	userHandler := handlers.NewUserHandler(userStore)
 	userHandler.RegisterAuthRoutes(api)
 
-	customerHandler := handlers.NewCustomerHandler(customerService)
+	customerHandler := handlers.NewCustomerHandler(customerStore)
 	customerHandler.RegisterCustomerRoutes(api)
-
-	productHandler := handlers.NewProductHandler(mysqlStore)
+	productHandler := handlers.NewProductHandler(productStore, supplierStore)
 	productHandler.RegisterProductRoutes(api)
 
-	supplierHandler := handlers.NewSupplierHandler(mysqlStore)
+	supplierHandler := handlers.NewSupplierHandler(supplierStore)
 	supplierHandler.RegisterSupplierRoutes(api)
 
-	productImageUploadHandler := (handlers.NewProductImageHandler(mysqlStore))
+	productImageUploadHandler := handlers.NewProductImageHandler(productImageStore, productStore)
 	productImageUploadHandler.RegisterProductImageRoutes(api)
 
 	e.engine.Run(":8080")

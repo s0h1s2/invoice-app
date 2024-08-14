@@ -12,10 +12,10 @@ import (
 )
 
 type supplierHandler struct {
-	store repositories.Store
+	store repositories.SupplierRepository
 }
 
-func NewSupplierHandler(store repositories.Store) *supplierHandler {
+func NewSupplierHandler(store repositories.SupplierRepository) *supplierHandler {
 	return &supplierHandler{
 		store: store,
 	}

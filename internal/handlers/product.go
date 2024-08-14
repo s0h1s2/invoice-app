@@ -12,12 +12,14 @@ import (
 )
 
 type productHandler struct {
-	store repositories.Store
+	product  repositories.ProductRepository
+	supplier repositories.SupplierRepository
 }
 
-func NewProductHandler(store repositories.Store) *productHandler {
+func NewProductHandler(product repositories.ProductRepository, supplier repositories.SupplierRepository) *productHandler {
 	return &productHandler{
-		store: store,
+		product:  product,
+		supplier: supplier,
 	}
 }
 func (ph *productHandler) RegisterProductRoutes(gin gin.IRouter) {
@@ -33,7 +35,7 @@ func (ph *productHandler) getProduct(ctx *gin.Context) {
 		return
 	}
 
-	product, err := ph.store.GetProduct(productUri.ID)
+	product, err := ph.product.GetProduct(productUri.ID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, pkg.ErrorResponse{Errors: "Product not found."})
 		return
@@ -48,7 +50,7 @@ func (ph *productHandler) createProduct(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: err.Error()})
 		return
 	}
-	_, err := ph.store.GetSupplier(payload.SupplierID)
+	_, err := ph.supplier.GetSupplier(payload.SupplierID)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: "Supplier doesn't exist."})
 		return
@@ -61,7 +63,7 @@ func (ph *productHandler) createProduct(ctx *gin.Context) {
 		SupplierID: payload.SupplierID,
 	}
 
-	result, err := ph.store.CreateProduct(&product)
+	result, err := ph.product.CreateProduct(&product)
 	if err != nil {
 		slog.Error("Unable to create product", "err", err.Error())
 		ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Errors: "Unable to create product"})
@@ -76,7 +78,7 @@ func (ph *productHandler) updateProduct(ctx *gin.Context) {
 		return
 	}
 	// check if product exist
-	if _, err := ph.store.GetProduct(productUri.ID); err != nil {
+	if _, err := ph.product.GetProduct(productUri.ID); err != nil {
 		ctx.JSON(http.StatusNotFound, pkg.ErrorResponse{Errors: "Product doesn't exist"})
 		return
 	}
@@ -92,7 +94,7 @@ func (ph *productHandler) updateProduct(ctx *gin.Context) {
 		Price:    productRequest.Price,
 		Qunatity: productRequest.Quantity,
 	}
-	result, err := ph.store.UpdateProduct(productUri.ID, newProduct)
+	result, err := ph.product.UpdateProduct(productUri.ID, newProduct)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Errors: "Unable to update customer"})
 		return
@@ -100,4 +102,21 @@ func (ph *productHandler) updateProduct(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, result)
 
 }
-func (ph *productHandler) deleteProduct(ctx *gin.Context) {}
+func (ph *productHandler) deleteProduct(ctx *gin.Context) {
+	var productUri dto.GetProductRequest
+	if err := ctx.ShouldBindUri(&productUri); err != nil {
+		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: err.Error()})
+		return
+	}
+	if _, err := ph.product.GetProduct(productUri.ID); err != nil {
+		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: "Product doesn't exist"})
+		return
+	}
+	err := ph.product.DeleteProduct(productUri.ID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, pkg.SuccessResponse{Data: "Product Deleted"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, pkg.ErrorResponse{Errors: "Product deleted"})
+}
