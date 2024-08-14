@@ -10,3 +10,9 @@ type CreateProductRequest struct {
 	Price      float32 `json:"price" binding:"required"`
 	SupplierID uint    `json:"supplierId" binding:"required"`
 }
+type UpdateProductRequest struct {
+	Name     string  `json:"name"`
+	Quantity int     `json:"quantity"`
+	BarCode  string  `json:"barcode" binding:"max=13"`
+	Price    float32 `json:"price"`
+}

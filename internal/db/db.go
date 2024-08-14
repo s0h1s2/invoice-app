@@ -9,6 +9,7 @@ import (
 	"github.com/s0h1s2/invoice-app/internal/repositories"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type MysqlStore struct {
@@ -94,8 +95,12 @@ func (s *MysqlStore) CreateProductImage(image *models.ProductImage) error {
 	return s.db.Model(&models.ProductImage{ProductID: image.ProductID}).Create(image).Error
 }
 func (s *MysqlStore) UpdateProduct(productId uint, product *models.Product) (*models.Product, error) {
-
-	return nil, nil
+	productResult := &models.Product{}
+	result := s.db.Model(productResult).Clauses(clause.Returning{}).Where("id=?", productId).Updates(product)
+	if err := result.Error; err != nil {
+		return nil, err
+	}
+	return productResult, nil
 }
 func (s *MysqlStore) GetProduct(productId uint) (*models.Product, error) {
 	product := &models.Product{}
