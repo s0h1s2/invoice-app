@@ -89,6 +89,9 @@ func (s *MysqlStore) CreateProduct(product *models.Product) (*models.Product, er
 	}
 	return product, nil
 }
+func (s *MysqlStore) CreateProductImage(image *models.ProductImage) error {
+	return s.db.Model(&models.ProductImage{ProductID: image.ProductID}).Create(image).Error
+}
 func (s *MysqlStore) UpdateProduct(productId uint, product *models.Product) (*models.Product, error) {
 	return nil, nil
 }

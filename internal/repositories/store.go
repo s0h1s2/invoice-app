@@ -27,7 +27,7 @@ type Store interface {
 	UpdateProduct(productId uint, product *models.Product) (*models.Product, error)
 	GetProduct(productId uint) (*models.Product, error)
 	DeleteProduct(productId uint) error
-
+	CreateProductImage(image *models.ProductImage) error
 	/// Supplier
 	CreateSupplier(supplier *models.Supplier) (*models.Supplier, error)
 	GetSupplier(supplierId uint) (*models.Supplier, error)
