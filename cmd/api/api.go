@@ -58,5 +58,7 @@ func (e *engine) Start() {
 	productImageUploadHandler := handlers.NewProductImageHandler(productImageStore, productStore)
 	productImageUploadHandler.RegisterProductImageRoutes(api)
 
+	invoiceHandler := handlers.NewInvoiceHandler()
+	invoiceHandler.Register
 	e.engine.Run(":8080")
 }
