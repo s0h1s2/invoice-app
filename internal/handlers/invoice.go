@@ -6,12 +6,14 @@ import (
 )
 
 type invoiceHandler struct {
-	invoice repositories.InvoiceRepository
+	invoice  repositories.InvoiceRepository
+	customer repositories.CustomerRepository
 }
 
-func NewInvoiceRepository(invoice repositories.InvoiceRepository) *invoiceHandler {
+func NewInvoiceHandler(invoice repositories.InvoiceRepository, customer repositories.CustomerRepository) *invoiceHandler {
 	return &invoiceHandler{
-		invoice: invoice,
+		invoice:  invoice,
+		customer: customer,
 	}
 }
 

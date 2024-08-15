@@ -3,8 +3,8 @@ package repositories
 import "github.com/s0h1s2/invoice-app/internal/models"
 
 type InvoiceRepository interface {
-	CreateInvoice(invoice *models.Invoice)
-	GetInvoice(invoiceId uint)
-	UpdateInvoice(invoiceId uint, invoice *models.Invoice)
-	DeleteInvoice(invoiceId uint)
+	GetInvoice(invoiceID uint) (*models.Invoice, error)
+	CreateInvoice(invoice *models.Invoice) (*models.Invoice, error)
+	UpdateInvoice(invoiceID uint, invoice *models.Invoice) (*models.Invoice, error)
+	DeleteInvoice(invoiceID uint) error
 }

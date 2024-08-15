@@ -16,6 +16,8 @@ type engine struct {
 	engine *gin.Engine
 }
 
+// TODO: use option pattern for configurations
+
 func NewEngine() *engine {
 	eng := gin.Default()
 	eng.Static("/uploads", "../../assets/uploads")
@@ -35,14 +37,15 @@ func (e *engine) Start() {
 
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", config.Config.Db.User, config.Config.Db.Password, config.Config.Db.Host, config.Config.Db.Port, config.Config.Db.Name)
 
-	db := mysqlstore.NewMysqlStore(dsn)
+	store := mysqlstore.NewMysqlStore(dsn)
 
-	db.Init()
-	userStore := mysqlstore.NewMysqlUserStore(db)
-	productStore := mysqlstore.NewMysqlProductStore(db)
-	customerStore := mysqlstore.NewMysqlCustomerStore(db)
-	supplierStore := mysqlstore.NewMysqlSupplierStore(db)
-	productImageStore := mysqlstore.NewProductImageStore(db)
+	store.Init()
+	userStore := mysqlstore.NewMysqlUserStore(store)
+	productStore := mysqlstore.NewMysqlProductStore(store)
+	customerStore := mysqlstore.NewMysqlCustomerStore(store)
+	supplierStore := mysqlstore.NewMysqlSupplierStore(store)
+	productImageStore := mysqlstore.NewProductImageStore(store)
+	invoiceStore := mysqlstore.NewInvoiceStore(store)
 
 	userHandler := handlers.NewUserHandler(userStore)
 	userHandler.RegisterAuthRoutes(api)
@@ -58,7 +61,8 @@ func (e *engine) Start() {
 	productImageUploadHandler := handlers.NewProductImageHandler(productImageStore, productStore)
 	productImageUploadHandler.RegisterProductImageRoutes(api)
 
-	invoiceHandler := handlers.NewInvoiceHandler()
-	invoiceHandler.Register
+	invoiceHandler := handlers.NewInvoiceHandler(invoiceStore, customerStore)
+	invoiceHandler.RegisterInvoiceHandler(api)
+
 	e.engine.Run(":8080")
 }
