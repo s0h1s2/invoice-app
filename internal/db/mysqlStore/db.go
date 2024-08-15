@@ -31,3 +31,6 @@ func (s *mysqlStore) Init() {
 	s.db.AutoMigrate(&models.Invoice{})
 	s.db.AutoMigrate(&models.InvoiceLine{})
 }
+func (s *mysqlStore) GetDB() *gorm.DB {
+	return s.db
+}
