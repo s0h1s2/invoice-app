@@ -45,6 +45,8 @@ func (il *invoiceLineHandler) createInvoiceLine(ctx *gin.Context) {
 	if err := ctx.ShouldBindJSON(&payload); err != nil {
 		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: err.Error()})
 	}
+	// TODO:check for product if exist
+	// TODO: check for invoice if exist
 	newInvoiceLine := &models.InvoiceLine{
 		ProductID: payload.ProductID,
 		InvoiceID: payload.InvoiceID,
@@ -52,11 +54,35 @@ func (il *invoiceLineHandler) createInvoiceLine(ctx *gin.Context) {
 		Quantity:  payload.Quanity,
 	}
 	il.invoiceLine.CreateInvoiceLine(newInvoiceLine)
-	ctx.JSON(http.StatusCreated, pkg.SuccessResponse{})
+	ctx.JSON(http.StatusCreated, pkg.SuccessResponse{Data: newInvoiceLine})
 }
 func (il *invoiceLineHandler) updateInvoiceLine(ctx *gin.Context) {
+	var invoiceURI dto.GetInvoiceRequest
+	if err := ctx.ShouldBindUri(&invoiceURI); err != nil {
+		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: err.Error()})
+		return
+	}
+	var payload dto.UpdateIvoiceLineRequest
 
-	ctx.JSON(http.StatusOK, pkg.SuccessResponse{})
+	if err := ctx.ShouldBindUri(&payload); err != nil {
+		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: err.Error()})
+		return
+	}
+
+	// TODO: check for invoice line id
+
+	updateInvoiceLine := &models.InvoiceLine{
+		Price:     payload.Price,
+		Quantity:  payload.Quanity,
+		ProductID: payload.ProductID,
+	}
+	updatedInvoiceLine, err := il.invoiceLine.UpdateInvoiceLine(invoiceURI.ID, updateInvoiceLine)
+	if err != nil {
+		err := httperror.FromError(err)
+		ctx.JSON(err.Status, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, pkg.SuccessResponse{Data: updatedInvoiceLine})
 }
 func (il *invoiceLineHandler) deleteInvoiceLine(ctx *gin.Context) {
 
