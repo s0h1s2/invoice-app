@@ -76,12 +76,14 @@ func (ih *invoiceHandler) createInvoice(ctx *gin.Context) {
 		newInvoiceID = fmt.Sprintf("%d-0001", date.Year())
 	} else {
 		sequence := strings.Split(lastInvoice.InvoiceID, "-")[1]
+		println(sequence)
 		nextSequence, err := strconv.ParseInt(sequence, 0, 0)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Errors: "Internal server error"})
 			return
 		}
-		nextSequence++
+		nextSequence += 2
+		println(nextSequence)
 		newInvoiceID = fmt.Sprintf("%d-%04d", date.Year(), nextSequence)
 	}
 	newInvoice := &models.Invoice{

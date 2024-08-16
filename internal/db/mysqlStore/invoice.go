@@ -43,7 +43,7 @@ func (s *invoiceStore) CreateInvoice(invoice *models.Invoice) (*models.Invoice, 
 func (s *invoiceStore) GetLastInvoiceByYear(date time.Time) (*models.Invoice, error) {
 	invoice := &models.Invoice{}
 	year := date.Year()
-	err := s.conn.db.Model(&models.Invoice{}).Where("invoice_id LIKE ?", fmt.Sprintf("%%%d%%", year)).Order("created_at asc").Take(invoice).Error
+	err := s.conn.db.Model(&models.Invoice{}).Where("invoice_id LIKE ?", fmt.Sprintf("%%%d%%", year)).Order("created_at desc").Take(invoice).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, repositories.ErrNotFound
