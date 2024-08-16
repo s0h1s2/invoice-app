@@ -10,6 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/s0h1s2/invoice-app/internal/dto"
+	"github.com/s0h1s2/invoice-app/internal/httperror"
 	"github.com/s0h1s2/invoice-app/internal/models"
 	"github.com/s0h1s2/invoice-app/internal/operations"
 	"github.com/s0h1s2/invoice-app/internal/repositories"
@@ -38,7 +39,18 @@ func (ih *invoiceHandler) RegisterInvoiceHandler(routes gin.IRouter) {
 	routes.DELETE("/invoices/:id", ih.deleteInvoice)
 }
 func (ih *invoiceHandler) getInvoice(ctx *gin.Context) {
-
+	var invoiceURI dto.GetInvoiceRequest
+	if err := ctx.ShouldBindUri(&invoiceURI); err != nil {
+		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: err.Error()})
+		return
+	}
+	invoice, err := ih.invoice.GetInvoice(invoiceURI.ID)
+	if err != nil {
+		err := httperror.FromError(err)
+		ctx.JSON(err.Status, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, pkg.SuccessResponse{Data: invoice})
 }
 func (ih *invoiceHandler) createInvoice(ctx *gin.Context) {
 	var payload dto.CreateInvoiceRequest
@@ -67,7 +79,7 @@ func (ih *invoiceHandler) createInvoice(ctx *gin.Context) {
 	}
 	lastInvoice, err := ih.invoice.GetLastInvoiceByYear(date)
 	if err != nil && !errors.Is(err, repositories.ErrNotFound) {
-		ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Errors: "Internal server error"})
+		ctx.JSON(http.StatusInternalServerError, httperror.FromError(err))
 		return
 	}
 
@@ -76,14 +88,12 @@ func (ih *invoiceHandler) createInvoice(ctx *gin.Context) {
 		newInvoiceID = fmt.Sprintf("%d-0001", date.Year())
 	} else {
 		sequence := strings.Split(lastInvoice.InvoiceID, "-")[1]
-		println(sequence)
-		nextSequence, err := strconv.ParseInt(sequence, 0, 0)
+		nextSequence, err := strconv.ParseInt(strings.TrimLeft(sequence, "0"), 0, 0)
 		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Errors: "Internal server error"})
+			ctx.JSON(http.StatusInternalServerError, httperror.FromError(err))
 			return
 		}
-		nextSequence += 2
-		println(nextSequence)
+		nextSequence++
 		newInvoiceID = fmt.Sprintf("%d-%04d", date.Year(), nextSequence)
 	}
 	newInvoice := &models.Invoice{
@@ -106,7 +116,7 @@ func (ih *invoiceHandler) createInvoice(ctx *gin.Context) {
 		},
 	})
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, pkg.SuccessResponse{Data: "Unable to create invoice"})
+		ctx.JSON(http.StatusInternalServerError, httperror.FromError(err))
 		return
 	}
 	ctx.JSON(http.StatusCreated, pkg.SuccessResponse{Data: invoiceResult})

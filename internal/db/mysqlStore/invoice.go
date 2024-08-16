@@ -3,7 +3,6 @@ package mysqlstore
 import (
 	"errors"
 	"fmt"
-	"log/slog"
 	"time"
 
 	"github.com/s0h1s2/invoice-app/internal/models"
@@ -23,11 +22,11 @@ func NewInvoiceStore(conn *mysqlStore) *invoiceStore {
 }
 func (s *invoiceStore) GetInvoice(invoiceID uint) (*models.Invoice, error) {
 	invoice := &models.Invoice{}
-	err := s.conn.db.Preload("LineItems").Find(invoice, "id=?", invoiceID).Error
-	if errors.Is(gorm.ErrRecordNotFound, err) {
-		return nil, repositories.ErrNotFound
-	} else if err != nil {
-		slog.Error("Error while reading invoice", "err", err)
+	err := s.conn.db.Preload("Lines").Preload("Customer").First(invoice, "id=?", invoiceID).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, repositories.ErrNotFound
+		}
 		return nil, err
 	}
 	return invoice, nil

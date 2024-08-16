@@ -9,7 +9,6 @@ type CreateInvoiceRequest struct {
 	Total      float32 `json:"total" binding:"required"`
 }
 type UpdateInvoiceRequest struct {
-	Date       string  `json:"date"`
 	CustomerID uint    `json:"customerId"`
 	Total      float32 `json:"total"`
 }
