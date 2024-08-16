@@ -116,10 +116,53 @@ func (ih *invoiceHandler) createInvoice(ctx *gin.Context) {
 		},
 	})
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, httperror.FromError(err))
+		err := httperror.FromError(err)
+		ctx.JSON(err.Status, err)
 		return
 	}
 	ctx.JSON(http.StatusCreated, pkg.SuccessResponse{Data: invoiceResult})
 }
-func (ih *invoiceHandler) updateInvoice(ctx *gin.Context) {}
-func (ih *invoiceHandler) deleteInvoice(ctx *gin.Context) {}
+func (ih *invoiceHandler) updateInvoice(ctx *gin.Context) {
+	var invoiceURI dto.GetInvoiceRequest
+	if err := ctx.ShouldBindUri(&invoiceURI); err != nil {
+		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: err.Error()})
+		return
+	}
+
+	var payload dto.UpdateInvoiceRequest
+	if err := ctx.ShouldBindJSON(&payload); err != nil {
+		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: err.Error()})
+		return
+	}
+	newInvoice := &models.Invoice{
+		Total:      payload.Total,
+		CustomerID: payload.CustomerID,
+	}
+	_, err := ih.invoice.UpdateInvoice(invoiceURI.ID, newInvoice)
+	if err != nil {
+		err := httperror.FromError(err)
+		ctx.JSON(err.Status, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, pkg.SuccessResponse{Data: "Invoice updated"})
+}
+func (ih *invoiceHandler) deleteInvoice(ctx *gin.Context) {
+	var invoiceURI dto.GetInvoiceRequest
+	if err := ctx.ShouldBindUri(&invoiceURI); err != nil {
+		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: err.Error()})
+		return
+	}
+	_, err := ih.invoice.GetInvoice(invoiceURI.ID)
+	if err != nil {
+		err := httperror.FromError(err)
+		ctx.JSON(err.Status, err)
+		return
+	}
+	err = ih.invoice.DeleteInvoice(invoiceURI.ID)
+	if err != nil {
+		err := httperror.FromError(err)
+		ctx.JSON(err.Status, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, pkg.SuccessResponse{Data: "invoice deleted"})
+}
