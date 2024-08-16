@@ -52,9 +52,9 @@ func (ih *invoiceHandler) createInvoice(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, pkg.ErrorResponse{Errors: "Customer not found"})
 		return
 	}
-	var customerBalanceWithTaxRate float32=customer.Balance
-	if payload.Total>=util.GetTaxThreshold(){	
-		customerBalanceWithTaxRate=customer.Balance*util.GetTaxRate()
+	var customerBalanceWithTaxRate float32 = customer.Balance
+	if payload.Total >= util.GetTaxThreshold() {
+		customerBalanceWithTaxRate = customer.Balance * util.GetTaxRate()
 	}
 	if customerBalanceWithTaxRate < payload.Total {
 		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: "Customer's balance is not sufficient."})
@@ -90,17 +90,24 @@ func (ih *invoiceHandler) createInvoice(ctx *gin.Context) {
 		Total:      payload.Total,
 	}
 
-	newCustomerBalance:=&models.Customer{
-		Balance: customerBalance,
+	newCustomerBalance := &models.Customer{
+		Balance: customerBalanceWithTaxRate,
 	}
-	ih.unitOfWork.ExecuteInTransaction(operations.Operations{
+	err = ih.unitOfWork.ExecuteInTransaction(operations.Operations{
+
 		func() error {
 			_, err := ih.invoice.CreateInvoice(newInvoice)
 			return err
-		},func() error {
-			
-		}
+		}, func() error {
+			_, err := ih.customer.UpdateCustomer(customer.ID, newCustomerBalance)
+			return err
+		},
 	})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, pkg.SuccessResponse{Data: "Unable to create invoice"})
+		return
+	}
+	ctx.JSON(http.StatusCreated, pkg.SuccessResponse{Data: "Invoice created"})
 }
 func (ih *invoiceHandler) updateInvoice(ctx *gin.Context) {}
 func (ih *invoiceHandler) deleteInvoice(ctx *gin.Context) {}
