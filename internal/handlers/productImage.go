@@ -29,13 +29,13 @@ func (pm *productImageHandler) RegisterProductImageRoutes(route gin.IRouter) {
 }
 
 func (pm *productImageHandler) uploadImage(ctx *gin.Context) {
-	var productUri dto.GetProductRequest
+	var productURI dto.GetProductRequest
 
-	if err := ctx.ShouldBindUri(&productUri); err != nil {
+	if err := ctx.ShouldBindUri(&productURI); err != nil {
 		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: err.Error()})
 		return
 	}
-	productID := productUri.ID
+	productID := productURI.ID
 	_, err := pm.product.GetProduct(productID)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: "Product wasn't found."})

@@ -29,13 +29,13 @@ func (ph *productHandler) RegisterProductRoutes(gin gin.IRouter) {
 	gin.DELETE("/products/:id", ph.deleteProduct)
 }
 func (ph *productHandler) getProduct(ctx *gin.Context) {
-	var productUri dto.GetProductRequest
-	if err := ctx.ShouldBindUri(&productUri); err != nil {
+	var productURI dto.GetProductRequest
+	if err := ctx.ShouldBindUri(&productURI); err != nil {
 		ctx.JSON(http.StatusNotFound, pkg.ErrorResponse{Errors: err.Error()})
 		return
 	}
 
-	product, err := ph.product.GetProduct(productUri.ID)
+	product, err := ph.product.GetProduct(productURI.ID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, pkg.ErrorResponse{Errors: "Product not found."})
 		return
@@ -72,13 +72,13 @@ func (ph *productHandler) createProduct(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, pkg.SuccessResponse{Data: result})
 }
 func (ph *productHandler) updateProduct(ctx *gin.Context) {
-	var productUri dto.GetProductRequest
-	if err := ctx.ShouldBindUri(&productUri); err != nil {
+	var productURI dto.GetProductRequest
+	if err := ctx.ShouldBindUri(&productURI); err != nil {
 		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: err.Error()})
 		return
 	}
 	// check if product exist
-	if _, err := ph.product.GetProduct(productUri.ID); err != nil {
+	if _, err := ph.product.GetProduct(productURI.ID); err != nil {
 		ctx.JSON(http.StatusNotFound, pkg.ErrorResponse{Errors: "Product doesn't exist"})
 		return
 	}
@@ -94,7 +94,7 @@ func (ph *productHandler) updateProduct(ctx *gin.Context) {
 		Price:    productRequest.Price,
 		Qunatity: productRequest.Quantity,
 	}
-	result, err := ph.product.UpdateProduct(productUri.ID, newProduct)
+	result, err := ph.product.UpdateProduct(productURI.ID, newProduct)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Errors: "Unable to update customer"})
 		return
@@ -103,16 +103,16 @@ func (ph *productHandler) updateProduct(ctx *gin.Context) {
 
 }
 func (ph *productHandler) deleteProduct(ctx *gin.Context) {
-	var productUri dto.GetProductRequest
-	if err := ctx.ShouldBindUri(&productUri); err != nil {
+	var productURI dto.GetProductRequest
+	if err := ctx.ShouldBindUri(&productURI); err != nil {
 		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: err.Error()})
 		return
 	}
-	if _, err := ph.product.GetProduct(productUri.ID); err != nil {
+	if _, err := ph.product.GetProduct(productURI.ID); err != nil {
 		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: "Product doesn't exist"})
 		return
 	}
-	err := ph.product.DeleteProduct(productUri.ID)
+	err := ph.product.DeleteProduct(productURI.ID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, pkg.SuccessResponse{Data: "Product Deleted"})
 		return

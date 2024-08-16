@@ -19,6 +19,11 @@ type userHandler struct {
 	tokenMaker *util.TokenMaker
 }
 
+const (
+	accessTokenExpireTime  = time.Hour * 1
+	refreshTokenExpireTime = 7 * 24 * time.Hour
+)
+
 func NewUserHandler(user repositories.UserRepository, tokenMaker *util.TokenMaker) *userHandler {
 	return &userHandler{
 		user:       user,
@@ -49,9 +54,8 @@ func (u *userHandler) login(ctx *gin.Context) {
 		ctx.JSON(http.StatusUnauthorized, pkg.ErrorResponse{Status: http.StatusUnauthorized, Errors: "Invalid crendentials"})
 		return
 	}
-	refreshTokenExpireTime := time.Now().AddDate(0, 0, 7)
-	accessToken, err := u.tokenMaker.GenerateToken(user.ID, user.Username, config.Config.Jwt.JwtSecretKey, time.Now().Add(time.Hour*1))
-	refreshToken, err := u.tokenMaker.GenerateToken(user.ID, user.Username, config.Config.Jwt.JwtSecretKey, refreshTokenExpireTime)
+	accessToken, err := u.tokenMaker.GenerateToken(user.ID, user.Username, config.Config.Jwt.JwtSecretKey, time.Now().Add(accessTokenExpireTime))
+	refreshToken, err := u.tokenMaker.GenerateToken(user.ID, user.Username, config.Config.Jwt.JwtSecretKey, time.Now().AddDate(0, 0, int(refreshTokenExpireTime)))
 	if err != nil {
 		err := httperror.FromError(err)
 		ctx.JSON(err.Status, err)
@@ -61,7 +65,7 @@ func (u *userHandler) login(ctx *gin.Context) {
 	// TODO: hash session to more safety.
 	err = u.user.CreateSession(&models.Session{
 		RefreshToken: refreshToken,
-		ExpireAt:     refreshTokenExpireTime,
+		ExpireAt:     time.Now().Add(refreshTokenExpireTime),
 	})
 
 	if err != nil {
@@ -95,7 +99,20 @@ func (u *userHandler) createUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, pkg.SuccessResponse{Data: "User created sucessfully"})
 }
 func (u *userHandler) refreshToken(ctx *gin.Context) {
-	ctx.JSON(200, gin.H{"Hello": 2})
+	var payload dto.TokenRequest
+	if err := ctx.ShouldBindJSON(&payload); err != nil {
+		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: err.Error()})
+		return
+	}
+
+	session, err := u.user.GetSession(payload.RefreshToken)
+	if err != nil {
+		err := httperror.FromError(err)
+		ctx.JSON(http.StatusNotFound, err)
+		return
+	}
+
+	ctx.JSON(200, gin.H{"Hello": session})
 }
 func (u *userHandler) updateUser(ctx *gin.Context) {
 	ctx.JSON(200, gin.H{"Hello": 3})

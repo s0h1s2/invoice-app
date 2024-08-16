@@ -28,12 +28,12 @@ func (sh *supplierHandler) RegisterSupplierRoutes(route gin.IRouter) {
 }
 
 func (sh *supplierHandler) getSupplier(ctx *gin.Context) {
-	var supplierUri dto.GetSupplierRequest
-	if err := ctx.ShouldBindUri(&supplierUri); err != nil {
+	var supplierURI dto.GetSupplierRequest
+	if err := ctx.ShouldBindUri(&supplierURI); err != nil {
 		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: err.Error()})
 		return
 	}
-	result, err := sh.store.GetSupplier(supplierUri.ID)
+	result, err := sh.store.GetSupplier(supplierURI.ID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, pkg.ErrorResponse{Errors: "Unable to find supplier."})
 		return
@@ -60,15 +60,15 @@ func (sh *supplierHandler) createSupplier(ctx *gin.Context) {
 
 }
 func (sh *supplierHandler) updateSupplier(ctx *gin.Context) {
-	var supplierUri dto.GetSupplierRequest
-	if err := ctx.ShouldBindUri(&supplierUri); err != nil {
+	var supplierURI dto.GetSupplierRequest
+	if err := ctx.ShouldBindUri(&supplierURI); err != nil {
 		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: err.Error()})
 		return
 	}
 	// find supplier by id
-	supplierId := supplierUri.ID
+	supplierID := supplierURI.ID
 
-	_, err := sh.store.GetSupplier(supplierId)
+	_, err := sh.store.GetSupplier(supplierID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, pkg.ErrorResponse{Errors: "Supplier doesn't exist."})
 		return
@@ -82,7 +82,7 @@ func (sh *supplierHandler) updateSupplier(ctx *gin.Context) {
 		Name:  payload.Name,
 		Phone: payload.Phone,
 	}
-	result, err := sh.store.UpdateSupplier(supplierId, supplier)
+	result, err := sh.store.UpdateSupplier(supplierID, supplier)
 	if err != nil {
 		slog.Error("Unable to update supplier %s", "err", err.Error())
 		ctx.JSON(http.StatusInternalServerError, pkg.ErrorResponse{Errors: "Unable to update supplier"})
@@ -92,12 +92,12 @@ func (sh *supplierHandler) updateSupplier(ctx *gin.Context) {
 
 }
 func (sh *supplierHandler) deleteSupplier(ctx *gin.Context) {
-	var supplierUri dto.GetSupplierRequest
-	if err := ctx.BindUri(&supplierUri); err != nil {
+	var supplierURI dto.GetSupplierRequest
+	if err := ctx.BindUri(&supplierURI); err != nil {
 		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: err.Error()})
 		return
 	}
-	err := sh.store.DeleteSupplier(supplierUri.ID)
+	err := sh.store.DeleteSupplier(supplierURI.ID)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: err.Error()})
 		return

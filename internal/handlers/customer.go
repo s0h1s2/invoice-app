@@ -60,8 +60,8 @@ func (c *customerHandler) createCustomer(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, pkg.SuccessResponse{Data: result})
 }
 func (c *customerHandler) updateCustomer(ctx *gin.Context) {
-	var customerUri dto.GetCustomerRequest
-	if err := ctx.ShouldBindUri(&customerUri); err != nil {
+	var customerURI dto.GetCustomerRequest
+	if err := ctx.ShouldBindUri(&customerURI); err != nil {
 		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: err.Error()})
 		return
 	}
@@ -70,7 +70,7 @@ func (c *customerHandler) updateCustomer(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: err.Error()})
 		return
 	}
-	customerID := customerUri.ID
+	customerID := customerURI.ID
 	_, err := c.customer.GetCusotmer(customerID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, pkg.ErrorResponse{Errors: "Customer not found."})
@@ -93,12 +93,12 @@ func (c *customerHandler) updateCustomer(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, pkg.SuccessResponse{Data: result})
 }
 func (c *customerHandler) deleteCustomer(ctx *gin.Context) {
-	var customerUri dto.GetCustomerRequest
-	if err := ctx.ShouldBindUri(&customerUri); err != nil {
+	var customerURI dto.GetCustomerRequest
+	if err := ctx.ShouldBindUri(&customerURI); err != nil {
 		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: err.Error()})
 		return
 	}
-	customerID := customerUri.ID
+	customerID := customerURI.ID
 	_, err := c.customer.GetCusotmer(customerID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, pkg.ErrorResponse{Errors: "Customer not found."})
