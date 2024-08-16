@@ -24,6 +24,7 @@ func NewMysqlStore(dsn string) *mysqlStore {
 }
 func (s *mysqlStore) Init() {
 	s.db.AutoMigrate(&models.User{})
+	s.db.AutoMigrate(&models.Session{})
 	s.db.AutoMigrate(&models.Customer{})
 	s.db.AutoMigrate(&models.Supplier{})
 	s.db.AutoMigrate(&models.Product{})

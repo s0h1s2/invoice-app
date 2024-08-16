@@ -10,6 +10,7 @@ import (
 	"github.com/s0h1s2/invoice-app/internal/config"
 	mysqlstore "github.com/s0h1s2/invoice-app/internal/db/mysqlStore"
 	"github.com/s0h1s2/invoice-app/internal/handlers"
+	"github.com/s0h1s2/invoice-app/internal/util"
 )
 
 type engine struct {
@@ -49,7 +50,7 @@ func (e *engine) Start() {
 	invoiceStore := mysqlstore.NewInvoiceStore(store)
 	invoiceLineStore := mysqlstore.NewMysqlInvoiceLineStore(store)
 
-	userHandler := handlers.NewUserHandler(userStore)
+	userHandler := handlers.NewUserHandler(userStore, util.NewTokenMaker())
 	userHandler.RegisterAuthRoutes(api)
 
 	customerHandler := handlers.NewCustomerHandler(customerStore)

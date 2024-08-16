@@ -2,9 +2,10 @@ package handlers
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v5"
+	"github.com/s0h1s2/invoice-app/internal/config"
 	"github.com/s0h1s2/invoice-app/internal/dto"
 	"github.com/s0h1s2/invoice-app/internal/httperror"
 	"github.com/s0h1s2/invoice-app/internal/models"
@@ -14,17 +15,14 @@ import (
 )
 
 type userHandler struct {
-	user repositories.UserRepository
-}
-type userClaims struct {
-	jwt.Claims
-	ID       uint   `json:"userID"`
-	Username string `json:"username"`
+	user       repositories.UserRepository
+	tokenMaker *util.TokenMaker
 }
 
-func NewUserHandler(user repositories.UserRepository) *userHandler {
+func NewUserHandler(user repositories.UserRepository, tokenMaker *util.TokenMaker) *userHandler {
 	return &userHandler{
-		user: user,
+		user:       user,
+		tokenMaker: tokenMaker,
 	}
 }
 func (u *userHandler) RegisterAuthRoutes(route gin.IRouter) {
@@ -51,16 +49,25 @@ func (u *userHandler) login(ctx *gin.Context) {
 		ctx.JSON(http.StatusUnauthorized, pkg.ErrorResponse{Status: http.StatusUnauthorized, Errors: "Invalid crendentials"})
 		return
 	}
-	userClaims := &userClaims{}
-	// generate json web token
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, userClaims)
-	tokenStr, err := token.SigningString()
+	refreshTokenExpireTime := time.Now().AddDate(0, 0, 7)
+	accessToken := u.tokenMaker.GenerateToken(user.ID, user.Username, config.Config.Jwt.JwtSecretKey, time.Now().Add(time.Hour*1))
+	refreshToken := u.tokenMaker.GenerateToken(user.ID, user.Username, config.Config.Jwt.JwtSecretKey, refreshTokenExpireTime)
+	// TODO: hash session to more safety.
+	err = u.user.CreateSession(&models.Session{
+		RefreshToken: refreshToken,
+		ExpireAt:     refreshTokenExpireTime,
+	})
+
 	if err != nil {
 		err := httperror.FromError(err)
 		ctx.JSON(err.Status, err)
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"accessToken": tokenStr})
+
+	ctx.JSON(http.StatusOK, pkg.SuccessResponse{Data: gin.H{
+		"accessToken":  accessToken,
+		"refreshToken": refreshToken,
+	}})
 }
 func (u *userHandler) createUser(ctx *gin.Context) {
 	var payload dto.CreateUserRequest

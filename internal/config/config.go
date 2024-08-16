@@ -1,7 +1,8 @@
 package config
 
 type jwtConfig struct {
-	JwtSecretKey string `env:"JWT_SECRET_KEY"`
+	JwtSecretKey  string `env:"JWT_SECRET_KEY"`
+	JwtRefreshKey string `env:"JWT_REFRESH_KEY"`
 }
 type databaseConfig struct {
 	User     string `env:"DB_USER"`

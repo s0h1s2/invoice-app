@@ -38,6 +38,14 @@ func (s *userStore) CreateUser(newUser *models.User) (*models.User, error) {
 	return newUser, nil
 }
 
-func (s *userStore) UpdateUserPassword(id uint, password string) (*models.User, error) {
+func (s *userStore) UpdateUserPassword(user *models.User) (*models.User, error) {
+	return nil, nil
+}
+func (s *userStore) CreateSession(session *models.Session) error {
+	err := s.conn.db.Create(session).Error
+	return err
+}
+
+func (s *userStore) GetSession(token string) (*models.Session, error) {
 	return nil, nil
 }
