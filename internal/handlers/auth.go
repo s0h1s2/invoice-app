@@ -7,6 +7,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/s0h1s2/invoice-app/internal/dto"
 	"github.com/s0h1s2/invoice-app/internal/httperror"
+	"github.com/s0h1s2/invoice-app/internal/models"
 	"github.com/s0h1s2/invoice-app/internal/repositories"
 	"github.com/s0h1s2/invoice-app/internal/util"
 	"github.com/s0h1s2/invoice-app/pkg"
@@ -31,7 +32,6 @@ func (u *userHandler) RegisterAuthRoutes(route gin.IRouter) {
 	route.POST("/users", u.createUser)
 	route.POST("/users/refresh", u.refreshToken)
 	route.PUT("/users/:id", u.updateUser)
-
 }
 
 func (u *userHandler) login(ctx *gin.Context) {
@@ -63,16 +63,23 @@ func (u *userHandler) login(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"accessToken": tokenStr})
 }
 func (u *userHandler) createUser(ctx *gin.Context) {
-	// var user dto.CreateUserRequest
-	// if err := ctx.ShouldBindJSON(&user); err != nil {
-	// 	ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: err.Error()})
-	// 	return
-	// }
-	// if err := u.user.RegisterUser(user); err != nil {
-	// 	ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: err.Error()})
-	// 	return
-	// }
-	// ctx.JSON(http.StatusOK, pkg.SuccessResponse{Data: "User created sucessfully"})
+	var payload dto.CreateUserRequest
+	if err := ctx.ShouldBindJSON(&payload); err != nil {
+		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: err.Error()})
+		return
+	}
+	// TODO: check if username exist before create new user
+	hashedPassword := util.HashPassword(payload.Password)
+	newUser := &models.User{
+		Username: payload.Username,
+		Password: hashedPassword,
+	}
+	if _, err := u.user.CreateUser(newUser); err != nil {
+		err := httperror.FromError(err)
+		ctx.JSON(err.Status, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, pkg.SuccessResponse{Data: "User created sucessfully"})
 }
 func (u *userHandler) refreshToken(ctx *gin.Context) {
 	ctx.JSON(200, gin.H{"Hello": 2})
