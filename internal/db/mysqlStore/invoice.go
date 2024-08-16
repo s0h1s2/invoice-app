@@ -2,7 +2,9 @@ package mysqlstore
 
 import (
 	"errors"
+	"fmt"
 	"log/slog"
+	"time"
 
 	"github.com/s0h1s2/invoice-app/internal/models"
 	"github.com/s0h1s2/invoice-app/internal/repositories"
@@ -36,6 +38,19 @@ func (s *invoiceStore) CreateInvoice(invoice *models.Invoice) (*models.Invoice, 
 	if err != nil {
 		return nil, err
 	}
+	return invoice, nil
+}
+func (s *invoiceStore) GetLastInvoiceByYear(date time.Time) (*models.Invoice, error) {
+	invoice := &models.Invoice{}
+	year := date.Year()
+	err := s.conn.db.Model(&models.Invoice{}).Where("invoice_id LIKE ?", fmt.Sprintf("%%%d%%", year)).Order("created_at asc").Take(invoice).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, repositories.ErrNotFound
+		}
+		return nil, err
+	}
+
 	return invoice, nil
 }
 func (s *invoiceStore) UpdateInvoice(invoiceID uint, invoice *models.Invoice) (*models.Invoice, error) {

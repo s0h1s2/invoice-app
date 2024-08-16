@@ -6,7 +6,7 @@ import (
 	"strconv"
 )
 
-func getTaxThreshold() float32 {
+func GetTaxThreshold() float32 {
 	taxThresholdStr := os.Getenv("TAX_THRESHOLD")
 	taxThreshold, err := strconv.ParseFloat(taxThresholdStr, 32)
 	if err != nil {
@@ -16,7 +16,7 @@ func getTaxThreshold() float32 {
 	return float32(taxThreshold)
 
 }
-func getTaxRate() float32 {
+func GetTaxRate() float32 {
 	taxRateStr := os.Getenv("TAX_RATE")
 	taxRate, err := strconv.ParseFloat(taxRateStr, 32)
 	if err != nil {
