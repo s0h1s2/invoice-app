@@ -50,8 +50,14 @@ func (u *userHandler) login(ctx *gin.Context) {
 		return
 	}
 	refreshTokenExpireTime := time.Now().AddDate(0, 0, 7)
-	accessToken := u.tokenMaker.GenerateToken(user.ID, user.Username, config.Config.Jwt.JwtSecretKey, time.Now().Add(time.Hour*1))
-	refreshToken := u.tokenMaker.GenerateToken(user.ID, user.Username, config.Config.Jwt.JwtSecretKey, refreshTokenExpireTime)
+	accessToken, err := u.tokenMaker.GenerateToken(user.ID, user.Username, config.Config.Jwt.JwtSecretKey, time.Now().Add(time.Hour*1))
+	refreshToken, err := u.tokenMaker.GenerateToken(user.ID, user.Username, config.Config.Jwt.JwtSecretKey, refreshTokenExpireTime)
+	if err != nil {
+		err := httperror.FromError(err)
+		ctx.JSON(err.Status, err)
+		return
+	}
+
 	// TODO: hash session to more safety.
 	err = u.user.CreateSession(&models.Session{
 		RefreshToken: refreshToken,

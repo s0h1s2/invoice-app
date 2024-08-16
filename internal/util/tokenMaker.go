@@ -1,7 +1,6 @@
 package util
 
 import (
-	"log/slog"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -17,7 +16,7 @@ type claims struct {
 func NewTokenMaker() *TokenMaker {
 	return &TokenMaker{}
 }
-func (tm *TokenMaker) GenerateToken(id uint, username, key string, expireAt time.Time) string {
+func (tm *TokenMaker) GenerateToken(id uint, username, key string, expireAt time.Time) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims{
 		Username: username,
 		UserID:   id,
@@ -25,9 +24,9 @@ func (tm *TokenMaker) GenerateToken(id uint, username, key string, expireAt time
 			ExpiresAt: &jwt.NumericDate{Time: expireAt},
 		},
 	})
-	tokenStr, err := token.SignedString(key)
+	tokenStr, err := token.SignedString([]byte(key))
 	if err != nil {
-		slog.Error("Unable to generate token", "err", err)
+		return "", err
 	}
-	return tokenStr
+	return tokenStr, nil
 }

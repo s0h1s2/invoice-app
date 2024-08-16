@@ -3,6 +3,7 @@ package mysqlstore
 
 import (
 	"errors"
+	"time"
 
 	"github.com/s0h1s2/invoice-app/internal/models"
 	"github.com/s0h1s2/invoice-app/internal/repositories"
@@ -47,5 +48,13 @@ func (s *userStore) CreateSession(session *models.Session) error {
 }
 
 func (s *userStore) GetSession(token string) (*models.Session, error) {
-	return nil, nil
+	result := &models.Session{}
+	err := s.conn.db.Model(result).First("token=? and expireAt < ?", token, time.Now()).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, repositories.ErrNotFound
+		}
+		return nil, err
+	}
+	return result, nil
 }
