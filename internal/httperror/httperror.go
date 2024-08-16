@@ -10,6 +10,13 @@ import (
 
 func FromError(err error) pkg.ErrorResponse {
 	switch err {
+	case repositories.ErrInvalidCreds:
+		{
+			return pkg.ErrorResponse{
+				Status: http.StatusUnauthorized,
+				Errors: "Invalid credentials",
+			}
+		}
 	case repositories.ErrNotFound:
 		{
 			return pkg.ErrorResponse{
