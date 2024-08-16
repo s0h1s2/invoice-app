@@ -55,6 +55,7 @@ func (e *engine) Start() {
 
 	customerHandler := handlers.NewCustomerHandler(customerStore)
 	customerHandler.RegisterCustomerRoutes(api)
+
 	productHandler := handlers.NewProductHandler(productStore, supplierStore)
 	productHandler.RegisterProductRoutes(api)
 

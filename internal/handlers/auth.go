@@ -8,6 +8,7 @@ import (
 	"github.com/s0h1s2/invoice-app/internal/config"
 	"github.com/s0h1s2/invoice-app/internal/dto"
 	"github.com/s0h1s2/invoice-app/internal/httperror"
+	"github.com/s0h1s2/invoice-app/internal/middleware"
 	"github.com/s0h1s2/invoice-app/internal/models"
 	"github.com/s0h1s2/invoice-app/internal/repositories"
 	"github.com/s0h1s2/invoice-app/internal/util"
@@ -34,7 +35,7 @@ func (u *userHandler) RegisterAuthRoutes(route gin.IRouter) {
 	route.POST("/users/auth", u.login)
 	route.POST("/users", u.createUser)
 	route.POST("/users/refresh", u.refreshToken)
-	route.PUT("/users/:id", u.updateUser)
+	route.PUT("/users/:id", middleware.VerifyAuth(), u.updateUser)
 }
 
 func (u *userHandler) login(ctx *gin.Context) {

@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/s0h1s2/invoice-app/internal/dto"
+	"github.com/s0h1s2/invoice-app/internal/middleware"
 	"github.com/s0h1s2/invoice-app/internal/models"
 	"github.com/s0h1s2/invoice-app/internal/repositories"
 	"github.com/s0h1s2/invoice-app/pkg"
@@ -21,10 +22,10 @@ func NewCustomerHandler(customer repositories.CustomerRepository) *customerHandl
 	}
 }
 func (c *customerHandler) RegisterCustomerRoutes(route gin.IRouter) {
-	route.GET("/customers/:id", c.getCustomer)
-	route.POST("/customers", c.createCustomer)
-	route.PUT("/customers/:id", c.updateCustomer)
-	route.DELETE("/customers/:id", c.deleteCustomer)
+	route.GET("/customers/:id", middleware.VerifyAuth(), c.getCustomer)
+	route.POST("/customers", middleware.VerifyAuth(), c.createCustomer)
+	route.PUT("/customers/:id", middleware.VerifyAuth(), c.updateCustomer)
+	route.DELETE("/customers/:id", middleware.VerifyAuth(), c.deleteCustomer)
 }
 func (c *customerHandler) getCustomer(ctx *gin.Context) {
 	var payload dto.GetCustomerRequest

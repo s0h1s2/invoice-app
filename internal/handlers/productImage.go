@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/s0h1s2/invoice-app/internal/dto"
+	"github.com/s0h1s2/invoice-app/internal/middleware"
 	"github.com/s0h1s2/invoice-app/internal/models"
 	"github.com/s0h1s2/invoice-app/internal/repositories"
 	"github.com/s0h1s2/invoice-app/pkg"
@@ -25,7 +26,7 @@ func NewProductImageHandler(image repositories.ProductImageRepository, product r
 	}
 }
 func (pm *productImageHandler) RegisterProductImageRoutes(route gin.IRouter) {
-	route.POST("/products/:id/image", pm.uploadImage)
+	route.POST("/products/:id/image", middleware.VerifyAuth(), pm.uploadImage)
 }
 
 func (pm *productImageHandler) uploadImage(ctx *gin.Context) {

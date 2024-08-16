@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/s0h1s2/invoice-app/internal/dto"
+	"github.com/s0h1s2/invoice-app/internal/middleware"
 	"github.com/s0h1s2/invoice-app/internal/models"
 	"github.com/s0h1s2/invoice-app/internal/repositories"
 	"github.com/s0h1s2/invoice-app/pkg"
@@ -23,10 +24,10 @@ func NewProductHandler(product repositories.ProductRepository, supplier reposito
 	}
 }
 func (ph *productHandler) RegisterProductRoutes(gin gin.IRouter) {
-	gin.GET("/products/:id", ph.getProduct)
-	gin.POST("/products", ph.createProduct)
-	gin.PUT("/products/:id", ph.updateProduct)
-	gin.DELETE("/products/:id", ph.deleteProduct)
+	gin.GET("/products/:id", middleware.VerifyAuth(), ph.getProduct)
+	gin.POST("/products", middleware.VerifyAuth(), ph.createProduct)
+	gin.PUT("/products/:id", middleware.VerifyAuth(), ph.updateProduct)
+	gin.DELETE("/products/:id", middleware.VerifyAuth(), ph.deleteProduct)
 }
 func (ph *productHandler) getProduct(ctx *gin.Context) {
 	var productURI dto.GetProductRequest

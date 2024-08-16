@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/s0h1s2/invoice-app/internal/dto"
+	"github.com/s0h1s2/invoice-app/internal/middleware"
 	"github.com/s0h1s2/invoice-app/internal/models"
 	"github.com/s0h1s2/invoice-app/internal/repositories"
 	"github.com/s0h1s2/invoice-app/pkg"
@@ -21,10 +22,10 @@ func NewSupplierHandler(store repositories.SupplierRepository) *supplierHandler 
 	}
 }
 func (sh *supplierHandler) RegisterSupplierRoutes(route gin.IRouter) {
-	route.GET("/suppliers/:id", sh.getSupplier)
-	route.POST("/suppliers", sh.createSupplier)
-	route.PUT("/suppliers/:id", sh.updateSupplier)
-	route.DELETE("/suppliers/:id", sh.deleteSupplier)
+	route.GET("/suppliers/:id", middleware.VerifyAuth(), sh.getSupplier)
+	route.POST("/suppliers", middleware.VerifyAuth(), sh.createSupplier)
+	route.PUT("/suppliers/:id", middleware.VerifyAuth(), sh.updateSupplier)
+	route.DELETE("/suppliers/:id", middleware.VerifyAuth(), sh.deleteSupplier)
 }
 
 func (sh *supplierHandler) getSupplier(ctx *gin.Context) {

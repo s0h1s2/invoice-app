@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/s0h1s2/invoice-app/internal/dto"
 	"github.com/s0h1s2/invoice-app/internal/httperror"
+	"github.com/s0h1s2/invoice-app/internal/middleware"
 	"github.com/s0h1s2/invoice-app/internal/models"
 	"github.com/s0h1s2/invoice-app/internal/repositories"
 	"github.com/s0h1s2/invoice-app/pkg"
@@ -21,10 +22,10 @@ func NewInvoiceLineHandler(invoiceLine repositories.InvoiceLineRepository) *invo
 	}
 }
 func (il *invoiceLineHandler) RegisterInvoiceLineRoutes(routes gin.IRouter) {
-	routes.GET("/invoice-lines/:id", il.getInvoiceLine)
-	routes.POST("/invoice-lines", il.createInvoiceLine)
-	routes.PUT("/invoice-lines/:id", il.updateInvoiceLine)
-	routes.DELETE("/invoice-lines/:id", il.deleteInvoiceLine)
+	routes.GET("/invoice-lines/:id", middleware.VerifyAuth(), il.getInvoiceLine)
+	routes.POST("/invoice-lines", middleware.VerifyAuth(), il.createInvoiceLine)
+	routes.PUT("/invoice-lines/:id", middleware.VerifyAuth(), il.updateInvoiceLine)
+	routes.DELETE("/invoice-lines/:id", middleware.VerifyAuth(), il.deleteInvoiceLine)
 }
 func (il *invoiceLineHandler) getInvoiceLine(ctx *gin.Context) {
 	var payload dto.GetInvoiceLineRequest

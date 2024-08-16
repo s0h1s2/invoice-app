@@ -11,6 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/s0h1s2/invoice-app/internal/dto"
 	"github.com/s0h1s2/invoice-app/internal/httperror"
+	"github.com/s0h1s2/invoice-app/internal/middleware"
 	"github.com/s0h1s2/invoice-app/internal/models"
 	"github.com/s0h1s2/invoice-app/internal/operations"
 	"github.com/s0h1s2/invoice-app/internal/repositories"
@@ -33,10 +34,10 @@ func NewInvoiceHandler(invoice repositories.InvoiceRepository, customer reposito
 }
 
 func (ih *invoiceHandler) RegisterInvoiceHandler(routes gin.IRouter) {
-	routes.GET("/invoices/:id", ih.getInvoice)
-	routes.POST("/invoices", ih.createInvoice)
-	routes.PUT("/invoices/:id", ih.updateInvoice)
-	routes.DELETE("/invoices/:id", ih.deleteInvoice)
+	routes.GET("/invoices/:id", middleware.VerifyAuth(), ih.getInvoice)
+	routes.POST("/invoices", middleware.VerifyAuth(), ih.createInvoice)
+	routes.PUT("/invoices/:id", middleware.VerifyAuth(), ih.updateInvoice)
+	routes.DELETE("/invoices/:id", middleware.VerifyAuth(), ih.deleteInvoice)
 }
 func (ih *invoiceHandler) getInvoice(ctx *gin.Context) {
 	var invoiceURI dto.GetInvoiceRequest
