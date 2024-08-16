@@ -10,13 +10,14 @@ services:
       MYSQL_PASSWORD: invoicepassword
     volumes:
       - db:/var/lib/mysql
-    ports:
-      - "127.0.0.1:3306:3306"
+    expose:
+      - "3307:3306"
   app:
     build: 
       context: .
     depends_on:
       - db
+    restart: always
     ports:
       - "8080:8080"
 volumes:
