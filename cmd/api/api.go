@@ -69,6 +69,6 @@ func (e *engine) Start() {
 	invoiceHandler.RegisterInvoiceHandler(api)
 	invoiceLineHandler := handlers.NewInvoiceLineHandler(invoiceLineStore)
 	invoiceLineHandler.RegisterInvoiceLineRoutes(api)
-
+	log.Printf("Server is listening on port", ":8080")
 	e.engine.Run(":8080")
 }
