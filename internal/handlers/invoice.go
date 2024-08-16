@@ -91,12 +91,12 @@ func (ih *invoiceHandler) createInvoice(ctx *gin.Context) {
 	}
 
 	newCustomerBalance := &models.Customer{
-		Balance: customerBalanceWithTaxRate,
+		Balance: customerBalanceWithTaxRate - payload.Total,
 	}
+	var invoiceResult *models.Invoice
 	err = ih.unitOfWork.ExecuteInTransaction(operations.Operations{
-
 		func() error {
-			_, err := ih.invoice.CreateInvoice(newInvoice)
+			invoiceResult, err = ih.invoice.CreateInvoice(newInvoice)
 			return err
 		}, func() error {
 			_, err := ih.customer.UpdateCustomer(customer.ID, newCustomerBalance)
@@ -107,7 +107,7 @@ func (ih *invoiceHandler) createInvoice(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, pkg.SuccessResponse{Data: "Unable to create invoice"})
 		return
 	}
-	ctx.JSON(http.StatusCreated, pkg.SuccessResponse{Data: "Invoice created"})
+	ctx.JSON(http.StatusCreated, pkg.SuccessResponse{Data: invoiceResult})
 }
 func (ih *invoiceHandler) updateInvoice(ctx *gin.Context) {}
 func (ih *invoiceHandler) deleteInvoice(ctx *gin.Context) {}

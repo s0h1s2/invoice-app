@@ -22,8 +22,8 @@ func (s *customerStore) CreateCustomer(customer *models.Customer) (*models.Custo
 	return customer, nil
 }
 
-func (s *customerStore) UpdateCustomer(customerId uint, customer *models.Customer) (*models.Customer, error) {
-	err := s.conn.db.Where("id=?", customerId).Updates(customer).Error
+func (s *customerStore) UpdateCustomer(customerID uint, customer *models.Customer) (*models.Customer, error) {
+	err := s.conn.db.Select("Balance").Where("id=?", customerID).Updates(customer).Error
 	if err != nil {
 		return nil, repositories.ErrCustomerUpdate
 	}
