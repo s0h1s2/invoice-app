@@ -19,6 +19,18 @@ func NewMysqlProductStore(conn *mysqlStore) *productStore {
 		conn: conn,
 	}
 }
+func (s *productStore) GetProduct(productId uint) (*models.Product, error) {
+	product := &models.Product{}
+	err := s.conn.db.Preload("Supplier").Preload("Images").Find(product, "id=?", productId).Error
+	if errors.Is(gorm.ErrRecordNotFound, err) {
+		return nil, repositories.ErrNotFound
+	} else if err != nil {
+		slog.Error("Error while reading product ", "err", err)
+		return nil, err
+	}
+	return product, nil
+}
+
 func (s *productStore) CreateProduct(product *models.Product) (*models.Product, error) {
 	err := s.conn.db.Create(product).Error
 	if err != nil {
@@ -33,17 +45,6 @@ func (s *productStore) UpdateProduct(productId uint, product *models.Product) (*
 		return nil, err
 	}
 	return productResult, nil
-}
-func (s *productStore) GetProduct(productId uint) (*models.Product, error) {
-	product := &models.Product{}
-	err := s.conn.db.Preload("Supplier").Preload("Images").Find(product, "id=?", productId).Error
-	if errors.Is(gorm.ErrRecordNotFound, err) {
-		return nil, repositories.ErrNotFound
-	} else if err != nil {
-		slog.Error("Error while reading product ", "err", err)
-		return nil, err
-	}
-	return product, nil
 }
 func (s *productStore) DeleteProduct(productId uint) error {
 	err := s.conn.db.Model(&models.Product{}).Delete("id=?", productId).Error

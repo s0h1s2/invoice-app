@@ -47,6 +47,7 @@ func (e *engine) Start() {
 	supplierStore := mysqlstore.NewMysqlSupplierStore(store)
 	productImageStore := mysqlstore.NewProductImageStore(store)
 	invoiceStore := mysqlstore.NewInvoiceStore(store)
+	invoiceLineStore := mysqlstore.NewMysqlInvoiceLineStore(store)
 
 	userHandler := handlers.NewUserHandler(userStore)
 	userHandler.RegisterAuthRoutes(api)
@@ -64,6 +65,8 @@ func (e *engine) Start() {
 
 	invoiceHandler := handlers.NewInvoiceHandler(invoiceStore, customerStore, storeUintOfWork)
 	invoiceHandler.RegisterInvoiceHandler(api)
+	invoiceLineHandler := handlers.NewInvoiceLineHandler(invoiceLineStore)
+	invoiceLineHandler.RegisterInvoiceLineRoutes(api)
 
 	e.engine.Run(":8080")
 }
