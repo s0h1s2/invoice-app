@@ -1,7 +1,7 @@
 package pkg
 
 type ErrorResponse struct {
-	Status int
+	Status int `json:"-"`
 	Errors any `json:"errors"`
 }
 type SuccessResponse struct {

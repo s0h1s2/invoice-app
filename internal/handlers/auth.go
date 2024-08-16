@@ -65,6 +65,8 @@ func (u *userHandler) login(ctx *gin.Context) {
 
 	// TODO: hash session to more safety.
 	err = u.user.CreateSession(&models.Session{
+		UserID:       user.ID,
+		Username:     user.Username,
 		RefreshToken: refreshToken,
 		ExpireAt:     time.Now().Add(refreshTokenExpireTime),
 	})
@@ -105,16 +107,34 @@ func (u *userHandler) refreshToken(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: err.Error()})
 		return
 	}
-
 	session, err := u.user.GetSession(payload.RefreshToken)
 	if err != nil {
 		err := httperror.FromError(err)
 		ctx.JSON(http.StatusNotFound, err)
 		return
 	}
-
-	ctx.JSON(200, gin.H{"Hello": session})
+	if session.ExpireAt.Before(time.Now()) {
+		ctx.JSON(http.StatusUnauthorized, pkg.ErrorResponse{
+			Status: http.StatusUnauthorized,
+			Errors: "Unauthroized token",
+		})
+		return
+	}
+	// TODO: block current token in redis or database in case where current access token time isn't expired
+	newAccessToken, err := u.tokenMaker.GenerateToken(session.UserID, session.Username, config.Config.Jwt.JwtSecretKey, time.Now().Add(accessTokenExpireTime))
+	if err != nil {
+		err := httperror.FromError(err)
+		ctx.JSON(err.Status, err.Errors)
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"accessToken": newAccessToken,
+	})
 }
 func (u *userHandler) updateUser(ctx *gin.Context) {
+	var payload dto.UpdateUserRequest
+	if err := ctx.ShouldBindJSON(payload); err != nil {
+		return
+	}
+
 	ctx.JSON(200, gin.H{"Hello": 3})
 }

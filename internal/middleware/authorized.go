@@ -17,9 +17,8 @@ func VerifyAuth() gin.HandlerFunc {
 		reqToken := ctx.GetHeader("Authorization")
 		splittedToken := strings.Split(reqToken, " ")
 		if len(splittedToken) < 2 {
-			ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: "Bad authorization header format"})
+			ctx.AbortWithStatusJSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: "Bad authorization header format"})
 			return
-
 		}
 		token, err := jwt.Parse(splittedToken[1], func(t *jwt.Token) (interface{}, error) {
 			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
@@ -29,7 +28,7 @@ func VerifyAuth() gin.HandlerFunc {
 		})
 		if err != nil {
 			err := httperror.FromError(err)
-			ctx.JSON(err.Status, err)
+			ctx.AbortWithStatusJSON(err.Status, err)
 			return
 		}
 		if token.Valid {
