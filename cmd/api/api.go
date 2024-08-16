@@ -15,15 +15,17 @@ import (
 
 type engine struct {
 	engine *gin.Engine
+	addr   string
 }
 
 // TODO: use option pattern for configurations
 
-func NewEngine() *engine {
+func NewEngine(addr int) *engine {
 	eng := gin.Default()
 	eng.Static("/uploads", "../../assets/uploads")
 	return &engine{
 		engine: eng,
+		addr:   fmt.Sprintf(":%d", addr),
 	}
 }
 func (e *engine) Start() {
@@ -69,6 +71,6 @@ func (e *engine) Start() {
 	invoiceHandler.RegisterInvoiceHandler(api)
 	invoiceLineHandler := handlers.NewInvoiceLineHandler(invoiceLineStore)
 	invoiceLineHandler.RegisterInvoiceLineRoutes(api)
-	log.Printf("Server is listening on port", ":8080")
-	e.engine.Run(":8080")
+	log.Printf("Server is listening on port %s", ":8080")
+	e.engine.Run(e.addr)
 }
