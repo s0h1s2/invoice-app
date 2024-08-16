@@ -37,12 +37,12 @@ func (s *invoiceLineStore) CreateInvoiceLine(invoiceLine *models.InvoiceLine) (*
 	}
 	return invoiceLine, nil
 }
-func (s *invoiceLineStore) UpdateInvoiceLine(invoiceID uint, invoice *models.InvoiceLine) (*models.InvoiceLine, error) {
-	err := s.conn.db.Clauses(clause.Returning{}).Where("id=?", invoiceID).Updates(invoice).Error
+func (s *invoiceLineStore) UpdateInvoiceLine(invoiceID uint, invoiceLine *models.InvoiceLine) (*models.InvoiceLine, error) {
+	err := s.conn.db.Clauses(clause.Returning{}).Where("id=?", invoiceID).Updates(invoiceLine).Error
 	if err != nil {
 		return nil, err
 	}
-	return invoice, nil
+	return invoiceLine, nil
 }
 func (s *invoiceLineStore) DeleteInvoiceLine(invoiceID uint) error {
 	err := s.conn.db.Delete(&models.InvoiceLine{}, "id=?", invoiceID).Error
