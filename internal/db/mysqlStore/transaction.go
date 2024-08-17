@@ -3,7 +3,7 @@ package mysqlstore
 import (
 	"errors"
 
-	"github.com/s0h1s2/invoice-app/internal/operations"
+	"github.com/s0h1s2/invoice-app/internal/repositories"
 )
 
 type mysqlTransaction struct {
@@ -15,7 +15,7 @@ func NewMysqlStoreTransaction(conn *mysqlStore) *mysqlTransaction {
 		conn: conn,
 	}
 }
-func (my *mysqlTransaction) ExecuteInTransaction(operations operations.Operations) error {
+func (my *mysqlTransaction) ExecuteInTransaction(operations repositories.Operations) error {
 	if len(operations) == 0 {
 		return errors.New("no operations provided")
 	}

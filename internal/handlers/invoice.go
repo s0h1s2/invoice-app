@@ -13,7 +13,6 @@ import (
 	"github.com/s0h1s2/invoice-app/internal/httperror"
 	"github.com/s0h1s2/invoice-app/internal/middleware"
 	"github.com/s0h1s2/invoice-app/internal/models"
-	"github.com/s0h1s2/invoice-app/internal/operations"
 	"github.com/s0h1s2/invoice-app/internal/repositories"
 	"github.com/s0h1s2/invoice-app/internal/util"
 	"github.com/s0h1s2/invoice-app/pkg"
@@ -22,10 +21,10 @@ import (
 type invoiceHandler struct {
 	invoice    repositories.InvoiceRepository
 	customer   repositories.CustomerRepository
-	unitOfWork util.UnitOfWork
+	unitOfWork repositories.UnitOfWork
 }
 
-func NewInvoiceHandler(invoice repositories.InvoiceRepository, customer repositories.CustomerRepository, unitOfWork util.UnitOfWork) *invoiceHandler {
+func NewInvoiceHandler(invoice repositories.InvoiceRepository, customer repositories.CustomerRepository, unitOfWork repositories.UnitOfWork) *invoiceHandler {
 	return &invoiceHandler{
 		invoice:    invoice,
 		customer:   customer,
@@ -107,7 +106,7 @@ func (ih *invoiceHandler) createInvoice(ctx *gin.Context) {
 		Balance: customerBalanceWithTaxRate - payload.Total,
 	}
 	var invoiceResult *models.Invoice
-	err = ih.unitOfWork.ExecuteInTransaction(operations.Operations{
+	err = ih.unitOfWork.ExecuteInTransaction(repositories.Operations{
 		func() error {
 			invoiceResult, err = ih.invoice.CreateInvoice(newInvoice)
 			return err
