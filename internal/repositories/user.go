@@ -7,5 +7,5 @@ type UserRepository interface {
 	CreateUser(user *models.User) (*models.User, error)
 	CreateSession(session *models.Session) error
 	GetSession(token string) (*models.Session, error)
-	UpdateUserPassword(user *models.User) (*models.User, error)
+	UpdateUserPassword(userID uint, password string) error
 }

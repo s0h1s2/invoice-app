@@ -38,8 +38,9 @@ func (s *userStore) CreateUser(newUser *models.User) (*models.User, error) {
 	return newUser, nil
 }
 
-func (s *userStore) UpdateUserPassword(user *models.User) (*models.User, error) {
-	return nil, nil
+func (s *userStore) UpdateUserPassword(userID uint, password string) error {
+	err := s.conn.db.Model(&models.User{}).Where("id=?", userID).Update("password", password).Error
+	return err
 }
 func (s *userStore) CreateSession(session *models.Session) error {
 	err := s.conn.db.Create(session).Error

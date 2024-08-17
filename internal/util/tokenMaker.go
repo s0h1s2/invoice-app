@@ -10,15 +10,15 @@ type TokenMaker struct{}
 
 type UserClaims struct {
 	jwt.RegisteredClaims
-	UserID   uint
-	Username string
+	UserID   uint   `json:"uid"`
+	Username string `json:"username"`
 }
 
 func NewTokenMaker() *TokenMaker {
 	return &TokenMaker{}
 }
 func (tm *TokenMaker) GenerateToken(id uint, username, key string, expireAt time.Time) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, UserClaims{
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &UserClaims{
 		Username: username,
 		UserID:   id,
 		RegisteredClaims: jwt.RegisteredClaims{

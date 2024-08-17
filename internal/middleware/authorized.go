@@ -22,7 +22,7 @@ func VerifyAuth() gin.HandlerFunc {
 			return
 		}
 		var userClaims util.UserClaims
-		token, err := jwt.ParseWithClaims(splittedToken[1], userClaims, func(t *jwt.Token) (interface{}, error) {
+		token, err := jwt.ParseWithClaims(splittedToken[1], &userClaims, func(t *jwt.Token) (interface{}, error) {
 			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("Error druing parsing jwt")
 			}

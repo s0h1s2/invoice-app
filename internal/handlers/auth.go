@@ -35,7 +35,7 @@ func (u *userHandler) RegisterUserRoutes(route gin.IRouter) {
 	route.POST("/users/auth", u.login)
 	route.POST("/users", u.createUser)
 	route.POST("/users/refresh", u.refreshToken)
-	route.PUT("/users/:id", middleware.VerifyAuth(), u.updateUser)
+	route.PUT("/users/me", middleware.VerifyAuth(), u.updateUser)
 }
 
 func (u *userHandler) login(ctx *gin.Context) {
@@ -132,9 +132,23 @@ func (u *userHandler) refreshToken(ctx *gin.Context) {
 }
 func (u *userHandler) updateUser(ctx *gin.Context) {
 	var payload dto.UpdateUserRequest
-	if err := ctx.ShouldBindJSON(payload); err != nil {
+	if err := ctx.ShouldBindJSON(&payload); err != nil {
+		ctx.JSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: err.Error()})
 		return
 	}
-
-	ctx.JSON(200, gin.H{"Hello": 3})
+	// TODO: this is really bad approach to handle this case.
+	// https://github.com/gin-gonic/gin/issues/1123
+	// There are a couple ideas i need to implement it.
+	// Maybe pass *engine struct in handlers be a good idea whenever authenticated user needed.
+	//
+	userID, _ := ctx.Get("user")
+	hashedPassword := util.HashPassword(payload.Password)
+	// update password with new hashed password
+	err := u.user.UpdateUserPassword(userID.(uint), hashedPassword)
+	if err != nil {
+		err := httperror.FromError(err)
+		ctx.JSON(err.Status, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, pkg.SuccessResponse{Data: "User updated sucessfully"})
 }
