@@ -1,7 +1,6 @@
 ## Setup Instructions
 
 ### Prerequisites
-
 - [Docker](https://www.docker.com/) installed on your machine.
 - [Postman](https://www.postman.com) installed on your machine.
 ### Installation Steps
@@ -18,7 +17,8 @@
      # docker compose up
      ```
 3. Test
-   - Import postman zip from `postman` directory into a postman workspace.
+   - Extract `postman.zip` from `postman` directory then  import extracted directory to a postman workspace.
+
 
 ### Database diagram
 ![https://imgur.com/6JL1wEc.png](https://imgur.com/6JL1wEcl.png)
