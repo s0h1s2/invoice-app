@@ -31,7 +31,7 @@ func NewUserHandler(user repositories.UserRepository, tokenMaker *util.TokenMake
 		tokenMaker: tokenMaker,
 	}
 }
-func (u *userHandler) RegisterAuthRoutes(route gin.IRouter) {
+func (u *userHandler) RegisterUserRoutes(route gin.IRouter) {
 	route.POST("/users/auth", u.login)
 	route.POST("/users", u.createUser)
 	route.POST("/users/refresh", u.refreshToken)

@@ -7,7 +7,8 @@ import (
 )
 
 type TokenMaker struct{}
-type claims struct {
+
+type UserClaims struct {
 	jwt.RegisteredClaims
 	UserID   uint
 	Username string
@@ -17,7 +18,7 @@ func NewTokenMaker() *TokenMaker {
 	return &TokenMaker{}
 }
 func (tm *TokenMaker) GenerateToken(id uint, username, key string, expireAt time.Time) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims{
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, UserClaims{
 		Username: username,
 		UserID:   id,
 		RegisteredClaims: jwt.RegisteredClaims{

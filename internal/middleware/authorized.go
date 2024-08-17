@@ -9,6 +9,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/s0h1s2/invoice-app/internal/config"
 	"github.com/s0h1s2/invoice-app/internal/httperror"
+	"github.com/s0h1s2/invoice-app/internal/util"
 	"github.com/s0h1s2/invoice-app/pkg"
 )
 
@@ -20,7 +21,8 @@ func VerifyAuth() gin.HandlerFunc {
 			ctx.AbortWithStatusJSON(http.StatusBadRequest, pkg.ErrorResponse{Errors: "Bad authorization header format"})
 			return
 		}
-		token, err := jwt.Parse(splittedToken[1], func(t *jwt.Token) (interface{}, error) {
+		var userClaims util.UserClaims
+		token, err := jwt.ParseWithClaims(splittedToken[1], userClaims, func(t *jwt.Token) (interface{}, error) {
 			if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("Error druing parsing jwt")
 			}
@@ -32,6 +34,7 @@ func VerifyAuth() gin.HandlerFunc {
 			return
 		}
 		if token.Valid {
+			ctx.Set("user", userClaims.UserID)
 			ctx.Next()
 			return
 		}

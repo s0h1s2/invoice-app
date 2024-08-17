@@ -41,6 +41,7 @@ func (e *engine) Start() {
 	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?charset=utf8mb4&parseTime=True&loc=Local", config.Config.Db.User, config.Config.Db.Password, config.Config.Db.Host, config.Config.Db.Port, config.Config.Db.Name)
 
 	store := mysqlstore.NewMysqlStore(dsn)
+	/// Transaction
 	storeUintOfWork := mysqlstore.NewMysqlStoreTransaction(store)
 
 	store.Init()
@@ -53,7 +54,7 @@ func (e *engine) Start() {
 	invoiceLineStore := mysqlstore.NewMysqlInvoiceLineStore(store)
 
 	userHandler := handlers.NewUserHandler(userStore, util.NewTokenMaker())
-	userHandler.RegisterAuthRoutes(api)
+	userHandler.RegisterUserRoutes(api)
 
 	customerHandler := handlers.NewCustomerHandler(customerStore)
 	customerHandler.RegisterCustomerRoutes(api)
