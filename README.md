@@ -19,4 +19,6 @@
      ```
 3. Test
    - Import postman zip from `postman` directory into a postman workspace.
- 
+
+### Database diagram
+![https://imgur.com/6JL1wEc.png](https://imgur.com/6JL1wEcl.png)
