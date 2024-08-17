@@ -4,7 +4,6 @@
 - [Docker](https://www.docker.com/) installed on your machine.
 - [Postman](https://www.postman.com) installed on your machine.
 ### Installation Steps
-
 1. Install Docker
    - Visit the [official Docker website](https://www.docker.com/)
    - Download and install Docker for your operating system
@@ -18,7 +17,8 @@
      ```
 3. Test
    - Extract `postman.zip` from `postman` directory then  import extracted directory to a postman workspace.
-
+### Authentication 
+   - The `Authroization` header format is `Bearer <access.token>`
 
 ### Database diagram
 ![https://imgur.com/6JL1wEc.png](https://imgur.com/6JL1wEcl.png)
