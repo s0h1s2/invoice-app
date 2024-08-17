@@ -18,7 +18,7 @@
 3. Test
    - Extract `postman.zip` from `postman` directory then  import extracted directory to a postman workspace.
 ### Authentication 
-   - The `Authroization` header format is `Bearer <access.token>`
+   - The `Authorization` header format is `Bearer <access.token>`
 
 ### Database diagram
 ![https://imgur.com/6JL1wEc.png](https://imgur.com/6JL1wEcl.png)
